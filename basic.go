@@ -36,17 +36,21 @@ func adjust(x, y *Real) ([]byte, []byte, uint) {
 }
 
 func (r *Real) trim() {
-	for _, v := range r.digits {
+	for _, v := range r.digits[:uint(len(r.digits))-r.decimal] {
 		if v != 0 {
 			break
 		}
 		r.digits = r.digits[1:]
+	}
+	if len(r.digits) == 0 {
+		return
 	}
 	for i := len(r.digits) - 1; uint(i) > uint(len(r.digits))-r.decimal; i-- {
 		if r.digits[i] != 0 {
 			break
 		}
 		r.digits = r.digits[:i]
+		r.decimal--
 	}
 }
 
@@ -88,6 +92,12 @@ func absCompare(a, b []byte) int {
 	}
 
 	return 0
+}
+
+func (r *Real) Abs() *Real {
+	z := r.Copy()
+	z.negative = false
+	return z
 }
 
 func (r *Real) Add(x *Real) *Real {
@@ -146,7 +156,7 @@ func (r *Real) Sub(x *Real) *Real {
 func (r *Real) Mul(x *Real) *Real {
 	// TODO: inline addition here to reduce allocations
 
-	a, b, _ := adjust(r, x)
+	a, b, d := adjust(r, x)
 
 	product := new(Real)
 
@@ -166,7 +176,54 @@ func (r *Real) Mul(x *Real) *Real {
 		product = product.Add(zr)
 	}
 
-	product.decimal = r.decimal + x.decimal
+	product.decimal = d * 2
+	if product.decimal > uint(len(product.digits)) {
+		pad := make([]byte, product.decimal-uint(len(product.digits)))
+		product.digits = append(pad, product.digits...)
+	}
+	product.negative = r.negative != x.negative
 	product.trim()
 	return product
+}
+
+func (r *Real) Div(x *Real) *Real {
+	xr := x.Reciprocal()
+	return r.Mul(xr)
+}
+
+func (r *Real) Reciprocal() *Real {
+	// scale r to be 0 < r < 1
+	rc := r.Copy()
+	dshift := uint(len(r.digits)) - r.decimal
+	rc.decimal = uint(len(rc.digits))
+
+	five := new(Real)
+	five.SetUint64(5)
+	four := new(Real)
+	four.SetUint64(4)
+	x0 := four.Sub(five.Mul(rc))
+
+	// f(x) = (1/x) - D
+	// xi+1 = xi(2-(D*xi))
+
+	x := x0
+	two := new(Real)
+	two.SetUint64(2)
+	for i := 0; i < 10; i++ { // TODO: precision escape
+		xn := x.Mul(two.Sub(rc.Mul(x)))
+		if xn.Compare(x) == 0 {
+			x = xn
+			break
+		}
+		x = xn
+	}
+
+	// restore shift
+	x.decimal += dshift
+	if x.decimal > uint(len(x.digits)) {
+		pad := make([]byte, x.decimal-uint(len(x.digits)))
+		x.digits = append(pad, x.digits...)
+	}
+
+	return x
 }

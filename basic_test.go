@@ -5,6 +5,32 @@ import (
 	"testing"
 )
 
+func TestTrim(t *testing.T) {
+	x := new(Real)
+
+	x.digits = []byte{0, 5, 0, 1}
+	x.decimal = 4 // .0501
+
+	x.trim()
+
+	if x.String() != ".0501" {
+		t.Fatal("invalid trim", x.String())
+	}
+}
+
+func TestTrim2(t *testing.T) {
+	x := new(Real)
+
+	x.digits = []byte{0, 5, 0, 1, 0, 0, 0}
+	x.decimal = 7 // .0501
+
+	x.trim()
+
+	if x.String() != ".0501" {
+		t.Fatal("invalid trim", x.String())
+	}
+}
+
 func TestAdjust(t *testing.T) {
 	x := new(Real)
 	y := new(Real)
@@ -176,7 +202,33 @@ func TestMul2(t *testing.T) {
 		t.Fatal("invalid negative flag")
 	}
 	if z.decimal != 3 {
-		t.Fatal("invalid decimal point")
+		t.Fatal("invalid decimal point", z)
+	}
+}
+
+func TestMul3(t *testing.T) {
+	x := new(Real)
+	y := new(Real)
+
+	x.SetInt64(1234)
+	x.decimal = 2 // 12.34
+
+	y.SetInt64(5)
+	y.decimal = 1 // .5
+
+	z := x.Mul(y)
+
+	if bytes.Compare(z.digits, []byte{6, 1, 7}) != 0 {
+		t.Fatal("invalid mul", z)
+	}
+	if z.negative {
+		t.Fatal("invalid negative flag")
+	}
+	if z.decimal != 2 {
+		t.Fatal("invalid decimal point", z.decimal)
+	}
+	if z.String() != "6.17" {
+		t.Fatal("invalid string", z.String())
 	}
 }
 
@@ -188,6 +240,63 @@ func TestAddCatchOverflow(t *testing.T) {
 	y.SetInt64(11342000)
 
 	z := x.Add(y)
+
+	if bytes.Compare(z.digits, []byte{1, 3, 2, 7, 0, 1, 4, 0}) != 0 {
+		t.Fatal("invalid add", z)
+	}
+	if z.negative {
+		t.Fatal("invalid negative flag")
+	}
+	if z.decimal != 0 {
+		t.Fatal("invalid decimal point")
+	}
+}
+
+func TestReciprocal(t *testing.T) {
+	x := new(Real)
+
+	x.SetInt64(1234)
+	x.decimal = 2 // 12.34
+
+	z := x.Reciprocal()
+
+	if bytes.Compare(z.digits, []byte{0, 8, 1, 0, 3, 7, 2, 8}) != 0 {
+		t.Fatal("invalid mul", z)
+	}
+	if z.negative {
+		t.Fatal("invalid negative flag")
+	}
+	if z.decimal != 8 {
+		t.Fatal("invalid decimal point")
+	}
+}
+
+func TestReciprocal2(t *testing.T) {
+	x := new(Real)
+
+	x.SetInt64(1000)
+
+	z := x.Reciprocal()
+
+	if bytes.Compare(z.digits, []byte{0, 8, 1, 0, 3, 7, 2, 8}) != 0 {
+		t.Fatal("invalid mul", z)
+	}
+	if z.negative {
+		t.Fatal("invalid negative flag")
+	}
+	if z.decimal != 8 {
+		t.Fatal("invalid decimal point")
+	}
+}
+
+func TestDiv(t *testing.T) {
+	x := new(Real)
+	y := new(Real)
+
+	x.SetInt64(5)
+	y.SetInt64(4)
+
+	z := x.Div(y)
 
 	if bytes.Compare(z.digits, []byte{1, 3, 2, 7, 0, 1, 4, 0}) != 0 {
 		t.Fatal("invalid add", z)
