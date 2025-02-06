@@ -138,3 +138,64 @@ func TestSub(t *testing.T) {
 		t.Fatal("invalid negative flag")
 	}
 }
+
+func TestMul1(t *testing.T) {
+	x := new(Real)
+	y := new(Real)
+
+	x.SetInt64(1234)
+
+	y.SetInt64(567)
+
+	z := x.Mul(y)
+
+	if bytes.Compare(z.digits, []byte{6, 9, 9, 6, 7, 8}) != 0 {
+		t.Fatal("invalid mul", z)
+	}
+	if z.negative {
+		t.Fatal("invalid negative flag")
+	}
+}
+
+func TestMul2(t *testing.T) {
+	x := new(Real)
+	y := new(Real)
+
+	x.SetInt64(1234)
+	x.decimal = 2 // 12.34
+
+	y.SetInt64(5671)
+	y.decimal = 1 // 567.1
+
+	z := x.Mul(y)
+
+	if bytes.Compare(z.digits, []byte{6, 9, 9, 8, 0, 1, 4}) != 0 {
+		t.Fatal("invalid mul", z)
+	}
+	if z.negative {
+		t.Fatal("invalid negative flag")
+	}
+	if z.decimal != 3 {
+		t.Fatal("invalid decimal point")
+	}
+}
+
+func TestAddCatchOverflow(t *testing.T) {
+	x := new(Real)
+	y := new(Real)
+
+	x.SetInt64(1928140)
+	y.SetInt64(11342000)
+
+	z := x.Add(y)
+
+	if bytes.Compare(z.digits, []byte{1, 3, 2, 7, 0, 1, 4, 0}) != 0 {
+		t.Fatal("invalid add", z)
+	}
+	if z.negative {
+		t.Fatal("invalid negative flag")
+	}
+	if z.decimal != 0 {
+		t.Fatal("invalid decimal point")
+	}
+}

@@ -106,7 +106,7 @@ func (r *Real) Add(x *Real) *Real {
 
 		for i := len(a) - 1; i >= 0; i-- {
 			a[i] += b[i]
-			if a[i] > 10 {
+			if a[i] >= 10 {
 				a[i] -= 10
 				a[i-1]++
 			}
@@ -141,4 +141,32 @@ func (r *Real) Sub(x *Real) *Real {
 	y := x.Copy()
 	y.negative = !y.negative
 	return r.Add(y)
+}
+
+func (r *Real) Mul(x *Real) *Real {
+	// TODO: inline addition here to reduce allocations
+
+	a, b, _ := adjust(r, x)
+
+	product := new(Real)
+
+	for i := len(a) - 1; i >= 0; i-- {
+		z := make([]byte, len(b)+1)
+		for j := len(b) - 1; j >= 0; j-- {
+			z[j+1] += a[i] * b[j]
+			if z[j+1] > 10 {
+				z[j] = (z[j+1] / 10)
+				z[j+1] = z[j+1] % 10
+			}
+		}
+		shift := len(a) - 1 - i
+		pad := make([]byte, shift)
+		z = append(z, pad...)
+		zr := &Real{digits: z}
+		product = product.Add(zr)
+	}
+
+	product.decimal = r.decimal + x.decimal
+	product.trim()
+	return product
 }
