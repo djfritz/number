@@ -259,6 +259,8 @@ func TestReciprocal(t *testing.T) {
 	x.decimal = 2 // 12.34
 
 	z := x.Reciprocal()
+	z.precision = 8
+	z.fix()
 
 	if bytes.Compare(z.digits, []byte{0, 8, 1, 0, 3, 7, 2, 8}) != 0 {
 		t.Fatal("invalid mul", z)
@@ -278,13 +280,13 @@ func TestReciprocal2(t *testing.T) {
 
 	z := x.Reciprocal()
 
-	if bytes.Compare(z.digits, []byte{0, 8, 1, 0, 3, 7, 2, 8}) != 0 {
+	if bytes.Compare(z.digits, []byte{0, 0, 1}) != 0 {
 		t.Fatal("invalid mul", z)
 	}
 	if z.negative {
 		t.Fatal("invalid negative flag")
 	}
-	if z.decimal != 8 {
+	if z.decimal != 3 {
 		t.Fatal("invalid decimal point")
 	}
 }
@@ -298,13 +300,33 @@ func TestDiv(t *testing.T) {
 
 	z := x.Div(y)
 
-	if bytes.Compare(z.digits, []byte{1, 3, 2, 7, 0, 1, 4, 0}) != 0 {
+	if bytes.Compare(z.digits, []byte{1, 2, 5}) != 0 {
+		t.Fatal("invalid div", z)
+	}
+	if z.negative {
+		t.Fatal("invalid negative flag")
+	}
+	if z.decimal != 2 {
+		t.Fatal("invalid decimal point")
+	}
+}
+
+func TestDiv2(t *testing.T) {
+	x := new(Real)
+	y := new(Real)
+
+	x.SetInt64(302875106592253)
+	y.SetInt64(87178291200)
+
+	z := x.Div(y)
+
+	if bytes.Compare(z.digits, []byte{1, 2, 5}) != 0 {
 		t.Fatal("invalid add", z)
 	}
 	if z.negative {
 		t.Fatal("invalid negative flag")
 	}
-	if z.decimal != 0 {
+	if z.decimal != 2 {
 		t.Fatal("invalid decimal point")
 	}
 }

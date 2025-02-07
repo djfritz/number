@@ -6,10 +6,12 @@ import (
 )
 
 type Real struct {
-	digits   []byte // decimal digits -- only valid values are 0-9
-	negative bool   // true if the number is negative
-	decimal  uint   // decimal place offset from the right. 0 mean the number is an integer
-	form     int    // ±∞, NaN, or a real number
+	digits    []byte // decimal digits -- only valid values are 0-9
+	negative  bool   // true if the number is negative
+	decimal   uint   // decimal place offset from the right. 0 mean the number is an integer
+	form      int    // ±∞, NaN, or a real number
+	mode      int
+	precision uint
 }
 
 const (
@@ -19,12 +21,18 @@ const (
 	NAN
 )
 
+const (
+	EVEN = iota
+)
+
 func (r *Real) Copy() *Real {
 	return &Real{
-		digits:   append([]byte{}, r.digits...),
-		negative: r.negative,
-		decimal:  r.decimal,
-		form:     r.form,
+		digits:    append([]byte{}, r.digits...),
+		negative:  r.negative,
+		decimal:   r.decimal,
+		form:      r.form,
+		mode:      r.mode,
+		precision: r.precision,
 	}
 }
 
@@ -35,8 +43,7 @@ func (r *Real) SetInt64(x int64) {
 	} else {
 		r.SetUint64(uint64(x))
 	}
-
-	// TODO: round precision
+	r.fix()
 }
 
 func (r *Real) SetUint64(x uint64) {
@@ -48,8 +55,7 @@ func (r *Real) SetUint64(x uint64) {
 		r.digits = append([]byte{byte(x % 10)}, r.digits...)
 		x /= 10
 	}
-
-	// TODO: round precision
+	r.fix()
 }
 
 func (r *Real) SetFloat64(x float64) {

@@ -35,7 +35,34 @@ func adjust(x, y *Real) ([]byte, []byte, uint) {
 	return a, b, d
 }
 
+func (r *Real) fix() {
+	if r.precision == 0 {
+		r.precision = 64
+	}
+	// TODO: other rounding modes
+	if r.decimal <= r.precision {
+		return
+	}
+
+	trim := r.decimal - r.precision
+	rd := r.digits[uint(len(r.digits))-trim]
+	r.digits = r.digits[:uint(len(r.digits))-trim]
+	r.decimal = r.precision
+
+	if rd < 5 {
+		// round down
+	} else if rd > 5 {
+		// round up
+		r.digits[len(r.digits)-1]++
+	} else { // round to nearest even
+		if r.digits[len(r.digits)-1]%2 != 0 {
+			r.digits[len(r.digits)-1]++
+		}
+	}
+}
+
 func (r *Real) trim() {
+	r.fix()
 	for _, v := range r.digits[:uint(len(r.digits))-r.decimal] {
 		if v != 0 {
 			break
@@ -202,6 +229,7 @@ func (r *Real) Reciprocal() *Real {
 	four := new(Real)
 	four.SetUint64(4)
 	x0 := four.Sub(five.Mul(rc))
+	x0.SetUint64(2)
 
 	// f(x) = (1/x) - D
 	// xi+1 = xi(2-(D*xi))
@@ -224,6 +252,8 @@ func (r *Real) Reciprocal() *Real {
 		pad := make([]byte, x.decimal-uint(len(x.digits)))
 		x.digits = append(pad, x.digits...)
 	}
+
+	x.trim()
 
 	return x
 }
