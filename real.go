@@ -2,51 +2,46 @@ package real
 
 import (
 	"fmt"
-	"math"
 	"strconv"
 )
 
+// A real number. Internally stored as a real number in decimal scientific notation.
 type Real struct {
-	digits    []byte // decimal digits -- only valid values are 0-9
-	negative  bool   // true if the number is negative
-	exponent  int
-	form      int // ±∞, NaN, or a real number
-	mode      int
-	precision uint
+	significand []byte // decimal significand -- only valid values are 0-9
+	negative    bool   // true if the number is negative
+	exponent    int    // exponent
+	precision   uint   // maximum allowed precision of the significand in decimal digits
 }
 
 const (
-	REAL = iota
-	INF
-	NINF
-	NAN
+	DefaultPrecision = 100 // the default precision for a real number. Expressed in decimal digits.
 )
 
-const (
-	EVEN = iota
-)
-
+// Copy returns a deep copy of the real value
 func (r *Real) Copy() *Real {
 	return &Real{
-		digits:    append([]byte{}, r.digits...),
-		negative:  r.negative,
-		exponent:  r.exponent,
-		form:      r.form,
-		mode:      r.mode,
-		precision: r.precision,
+		significand: append([]byte{}, r.significand...),
+		negative:    r.negative,
+		exponent:    r.exponent,
+		precision:   r.precision,
 	}
 }
 
+// Create a zero-value real number, copying precision, form, and mode from the
+// given real value. Used in internal functions to maintain precision while
+// making new values based on operands.
 func initFrom(x *Real) *Real {
 	return &Real{
-		digits:    []byte{},
-		precision: x.precision,
+		significand: []byte{},
+		precision:   x.precision,
 	}
 }
 
+// Same as initFrom(), but takes the maximum precision of x,y. Mode and form
+// always copy from x.
 func initFrom2(x, y *Real) *Real {
 	r := &Real{
-		digits: []byte{},
+		significand: []byte{},
 	}
 	if x.precision > y.precision {
 		r.precision = x.precision
@@ -56,6 +51,38 @@ func initFrom2(x, y *Real) *Real {
 	return r
 }
 
+// Return a new real number set to the given signed int64, with the default
+// rounding mode and precision.
+func NewInt64(x int64) *Real {
+	r := new(Real)
+	r.SetInt64(x)
+	return r
+}
+
+// Return a new real number set to the given unsigned uint64, with the default
+// rounding mode and precision.
+func NewUint64(x uint64) *Real {
+	r := new(Real)
+	r.SetUint64(x)
+	return r
+}
+
+// Return a new real number set to the given float64, with the default
+// rounding mode and precision.
+func NewFloat64(x float64) *Real {
+	r := new(Real)
+	r.SetFloat64(x)
+	return r
+}
+
+// Set the precision of the given number and round if necessary.
+func (r *Real) SetPrecision(x uint) {
+	r.precision = x
+	r.round()
+}
+
+// Set a real number to the given signed int64. Rounding mode and precision are
+// left unchanged. If precision is lower than the given value, rounding occurs.
 func (r *Real) SetInt64(x int64) {
 	if x < 0 {
 		r.SetUint64(uint64((^x) + 1))
@@ -65,37 +92,41 @@ func (r *Real) SetInt64(x int64) {
 	}
 }
 
+// Set a real number to the given unsigned uint64. Rounding mode and precision
+// are left unchanged. If precision is lower than the given value, rounding
+// occurs.
 func (r *Real) SetUint64(x uint64) {
-	r.digits = []byte{}
+	r.significand = []byte{}
 	r.negative = false
 	r.exponent = 0
-	r.form = REAL
 	if x == 0 {
 		return
 	}
 	for x != 0 {
-		r.digits = append([]byte{byte(x % 10)}, r.digits...)
+		r.significand = append([]byte{byte(x % 10)}, r.significand...)
 		x /= 10
 	}
-	r.exponent = len(r.digits) - 1
-	r.trim()
+	r.exponent = len(r.significand) - 1
+	r.round()
 }
 
+// Set a real number to the given float64. Rounding mode and precision are left
+// unchanged. If precision is lower than the given value, rounding occurs.
 func (r *Real) SetFloat64(x float64) {
-	r.digits = []byte{}
+	r.significand = []byte{}
 	r.negative = false
-	r.form = REAL
 
-	if math.IsInf(x, 1) {
-		r.form = INF
-		return
-	} else if math.IsInf(x, -1) {
-		r.form = NINF
-		return
-	} else if math.IsNaN(x) {
-		r.form = NAN
-		return
-	} else if x == 0 {
+	// TODO: forms
+	//	if math.IsInf(x, 1) {
+	//		r.form = INF
+	//		return
+	//	} else if math.IsInf(x, -1) {
+	//		r.form = NINF
+	//		return
+	//	} else if math.IsNaN(x) {
+	//		r.form = NAN
+	//		return
+	if x == 0 {
 		return
 	}
 
@@ -108,7 +139,7 @@ func (r *Real) SetFloat64(x float64) {
 		s = s[1:]
 	}
 
-	// digits
+	// significand
 	for i, v := range s {
 		if v == 'e' {
 			s = s[i+1:]
@@ -117,7 +148,7 @@ func (r *Real) SetFloat64(x float64) {
 		if v == '.' {
 			continue
 		}
-		r.digits = append(r.digits, byte(v)-0x30)
+		r.significand = append(r.significand, byte(v)-0x30)
 	}
 
 	// exponent
@@ -126,9 +157,10 @@ func (r *Real) SetFloat64(x float64) {
 		panic("could not parse exponent")
 	}
 	r.exponent = exp
-	r.trim()
+	r.round()
 }
 
+// Return the string form of the real number in scientific notation.
 func (r *Real) String() string {
 	var s string
 	if r.negative {
@@ -139,18 +171,18 @@ func (r *Real) String() string {
 		for i := 0; i < (r.exponent*-1)-1; i++ {
 			s += "0"
 		}
-		for _, v := range r.digits {
+		for _, v := range r.significand {
 			s += fmt.Sprintf("%c", v+0x30)
 		}
 	} else {
-		for i, v := range r.digits {
+		for i, v := range r.significand {
 			s += fmt.Sprintf("%c", v+0x30)
-			if i == r.exponent && i != len(r.digits)-1 {
+			if i == r.exponent && i != len(r.significand)-1 {
 				s += "."
 			}
 		}
-		if r.exponent > len(r.digits)-1 {
-			for i := 0; i < r.exponent-(len(r.digits)-1); i++ {
+		if r.exponent > len(r.significand)-1 {
+			for i := 0; i < r.exponent-(len(r.significand)-1); i++ {
 				s += "0"
 			}
 		}
@@ -158,17 +190,79 @@ func (r *Real) String() string {
 	return s
 }
 
+// Trim removes leading and trailing zeroes from a normalized value.
 func (r *Real) trim() {
-	for i := 0; i < len(r.digits); i++ {
-		if r.digits[i] != 0 {
+	var i int
+	for i = 0; i < len(r.significand); i++ {
+		if r.significand[i] != 0 {
 			break
 		}
-		r.digits = r.digits[1:]
 	}
-	for i := len(r.digits) - 1; i >= 0; i-- {
-		if r.digits[i] != 0 {
+	r.significand = r.significand[i:]
+	for i := len(r.significand) - 1; i >= 0; i-- {
+		if r.significand[i] != 0 {
 			break
 		}
-		r.digits = r.digits[:i]
+		r.significand = r.significand[:i]
 	}
 }
+
+// Round the value to the set precision and rounding mode, if necessary.
+func (r *Real) round() {
+	if r.precision == 0 {
+		r.precision = DefaultPrecision
+	}
+	r.roundTo(r.precision)
+}
+
+// Round the value to the given precision and rounding mode.
+func (r *Real) roundTo(p uint) {
+	defer r.trim()
+
+	if uint(len(r.significand)) <= p {
+		// number is exact, no rounding needed.
+		return
+	}
+
+	// TODO: other rounding modes
+	for i := uint(len(r.significand)) - 1; i >= p; i-- {
+		d := r.significand[i]
+		switch {
+		case d < 5:
+			// round down
+		case d > 5:
+			// round up
+			r.significand[i-1]++
+		case d == 5:
+			// round to nearest even
+			if r.significand[i-1]%2 != 0 {
+				r.significand[i-1]++
+			}
+		}
+		r.significand[i] = 0
+	}
+
+	// now unwind to the left to make sure we don't have any lingering carry
+	for i := p; i >= 0; i-- {
+		if r.significand[i] < 10 {
+			break
+		}
+		r.significand[i] -= 10
+
+		if i == 0 {
+			// pad
+			r.significand = append([]byte{1}, r.significand...)
+			break
+		}
+		r.significand[i-1]++
+	}
+}
+
+// Adjust shifts x and y to the same exponent and returns the significand of x and y
+// as byte slices, as well as the exponent the slices have. The precision of
+// the returned byte slices equals that of the higher precision operand, and
+// padding is added to ensure the byte slices are the same length. Shifted
+// values are rounded according to the rounding mode set in that operand.
+//func adjust(x, y *Real) ([]byte, []byte, int) {
+//
+//}
