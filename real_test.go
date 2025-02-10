@@ -8,42 +8,42 @@ import (
 func TestSetFloat64(t *testing.T) {
 	r := new(Real)
 	r.SetFloat64(1.23456789)
-	if bytes.Compare(r.digits, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 0}) != 0 {
+	if bytes.Compare(r.digits, []byte{1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 9, 9, 9, 9, 9, 9, 8, 9}) != 0 {
 		t.Fatal("SetFloat64 failed", r)
 	}
 	if r.negative {
 		t.Fatal("negative flag set")
 	}
-	if r.decimal != 0 {
-		t.Fatal("non-zero decimal place")
+	if r.exponent != 0 {
+		t.Fatal("invalid exponent", r.exponent)
 	}
 }
 
 func TestSetFloat642(t *testing.T) {
 	r := new(Real)
 	r.SetFloat64(.0000000000012414)
-	if bytes.Compare(r.digits, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 0}) != 0 {
+	if bytes.Compare(r.digits, []byte{1, 2, 4, 1, 3, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 4}) != 0 {
 		t.Fatal("SetFloat64 failed", r)
 	}
 	if r.negative {
 		t.Fatal("negative flag set")
 	}
-	if r.decimal != 0 {
-		t.Fatal("non-zero decimal place")
+	if r.exponent != -12 {
+		t.Fatal("invalid exponent")
 	}
 }
 
 func TestSetFloat643(t *testing.T) {
 	r := new(Real)
 	r.SetFloat64(12414223942231414151231231)
-	if bytes.Compare(r.digits, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 0}) != 0 {
+	if bytes.Compare(r.digits, []byte{1, 2, 4, 1, 4, 2, 2, 3, 9, 4, 2, 2, 3, 1, 4, 1, 4, 1}) != 0 {
 		t.Fatal("SetFloat64 failed", r)
 	}
 	if r.negative {
 		t.Fatal("negative flag set")
 	}
-	if r.decimal != 0 {
-		t.Fatal("non-zero decimal place")
+	if r.exponent != 25 {
+		t.Fatal("invalid exponent", r.exponent)
 	}
 }
 
@@ -51,13 +51,13 @@ func TestSetUint64(t *testing.T) {
 	r := new(Real)
 
 	r.SetUint64(1234567890)
-	if bytes.Compare(r.digits, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 0}) != 0 {
-		t.Fatal("SetUint64 failed")
+	if bytes.Compare(r.digits, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9}) != 0 {
+		t.Fatal("SetUint64 failed", r.digits)
 	}
 	if r.negative {
 		t.Fatal("negative flag set")
 	}
-	if r.decimal != 0 {
+	if r.exponent != 9 {
 		t.Fatal("non-zero decimal place")
 	}
 }
@@ -72,7 +72,7 @@ func TestSetInt64(t *testing.T) {
 	if r.negative {
 		t.Fatal("negative flag set")
 	}
-	if r.decimal != 0 {
+	if r.exponent != 18 {
 		t.Fatal("non-zero decimal place")
 	}
 
@@ -83,7 +83,7 @@ func TestSetInt64(t *testing.T) {
 	if !r.negative {
 		t.Fatal("negative flag not set")
 	}
-	if r.decimal != 0 {
+	if r.exponent != 18 {
 		t.Fatal("non-zero decimal place")
 	}
 
@@ -94,8 +94,8 @@ func TestSetInt64(t *testing.T) {
 	if r.negative {
 		t.Fatal("negative flag set")
 	}
-	if r.decimal != 0 {
-		t.Fatal("non-zero decimal place")
+	if r.exponent != 0 {
+		t.Fatal("non-zero decimal place", r.exponent)
 	}
 
 	r.SetInt64(-1337)
@@ -105,7 +105,7 @@ func TestSetInt64(t *testing.T) {
 	if !r.negative {
 		t.Fatal("negative flag not set")
 	}
-	if r.decimal != 0 {
+	if r.exponent != 3 {
 		t.Fatal("non-zero decimal place")
 	}
 }
@@ -117,7 +117,7 @@ func TestString(t *testing.T) {
 		t.Fatal("invalid string", r.String())
 	}
 	r.SetInt64(501)
-	r.decimal = 1
+	r.exponent = 1
 	if r.String() != "50.1" {
 		t.Fatal("invalid string", r.String())
 	}

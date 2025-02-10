@@ -37,7 +37,7 @@ func adjust(x, y *Real) ([]byte, []byte, uint) {
 
 func (r *Real) round() {
 	if r.precision == 0 {
-		r.precision = 100
+		r.precision = 34
 	}
 	r.roundTo(r.precision)
 }

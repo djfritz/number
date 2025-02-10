@@ -9,8 +9,8 @@ import (
 type Real struct {
 	digits    []byte // decimal digits -- only valid values are 0-9
 	negative  bool   // true if the number is negative
-	decimal   uint   // decimal place offset from the right. 0 mean the number is an integer
-	form      int    // ±∞, NaN, or a real number
+	exponent  int
+	form      int // ±∞, NaN, or a real number
 	mode      int
 	precision uint
 }
@@ -30,7 +30,7 @@ func (r *Real) Copy() *Real {
 	return &Real{
 		digits:    append([]byte{}, r.digits...),
 		negative:  r.negative,
-		decimal:   r.decimal,
+		exponent:  r.exponent,
 		form:      r.form,
 		mode:      r.mode,
 		precision: r.precision,
@@ -63,24 +63,26 @@ func (r *Real) SetInt64(x int64) {
 	} else {
 		r.SetUint64(uint64(x))
 	}
-	r.round()
 }
 
 func (r *Real) SetUint64(x uint64) {
 	r.digits = []byte{}
 	r.negative = false
-	r.decimal = 0
+	r.exponent = 0
 	r.form = REAL
+	if x == 0 {
+		return
+	}
 	for x != 0 {
 		r.digits = append([]byte{byte(x % 10)}, r.digits...)
 		x /= 10
 	}
-	r.round()
+	r.exponent = len(r.digits) - 1
+	r.trim()
 }
 
 func (r *Real) SetFloat64(x float64) {
 	r.digits = []byte{}
-	r.decimal = 0
 	r.negative = false
 	r.form = REAL
 
@@ -98,7 +100,7 @@ func (r *Real) SetFloat64(x float64) {
 	}
 
 	// an efficient binary to decimal algorithm is still a fantasy. Any
-	// approach here would be no better than just doing dota() and parsing
+	// approach here would be no better than just doing dtoa() and parsing
 	// the string, so we do exactly that...
 	s := fmt.Sprintf("%.17e", x)
 	if s[0] == '-' {
@@ -107,55 +109,66 @@ func (r *Real) SetFloat64(x float64) {
 	}
 
 	// digits
-	var hasDecimal bool
 	for i, v := range s {
 		if v == 'e' {
 			s = s[i+1:]
 			break
 		}
 		if v == '.' {
-			hasDecimal = true
 			continue
 		}
 		r.digits = append(r.digits, byte(v)-0x30)
-		if hasDecimal {
-			r.decimal++
-		}
 	}
 
 	// exponent
-	var padFront bool
-	if s[0] == '-' {
-		padFront = true
-		s = s[1:]
-	}
-
 	exp, err := strconv.Atoi(s)
 	if err != nil {
 		panic("could not parse exponent")
 	}
-	pad := make([]byte, exp)
-	if padFront {
-		r.digits = append(pad, r.digits...)
-		r.decimal += uint(exp)
-	} else {
-		r.digits = append(r.digits, pad...)
-	}
-
-	r.round()
+	r.exponent = exp
+	r.trim()
 }
 
 func (r *Real) String() string {
-	// TODO: forms
 	var s string
 	if r.negative {
 		s = "-"
 	}
-	for i, v := range r.digits {
-		if uint(len(r.digits))-r.decimal == uint(i) {
-			s += "."
+	if r.exponent < 0 {
+		s += "0."
+		for i := 0; i < (r.exponent*-1)-1; i++ {
+			s += "0"
 		}
-		s += fmt.Sprintf("%c", v+0x30)
+		for _, v := range r.digits {
+			s += fmt.Sprintf("%c", v+0x30)
+		}
+	} else {
+		for i, v := range r.digits {
+			s += fmt.Sprintf("%c", v+0x30)
+			if i == r.exponent && i != len(r.digits)-1 {
+				s += "."
+			}
+		}
+		if r.exponent > len(r.digits)-1 {
+			for i := 0; i < r.exponent-(len(r.digits)-1); i++ {
+				s += "0"
+			}
+		}
 	}
 	return s
+}
+
+func (r *Real) trim() {
+	for i := 0; i < len(r.digits); i++ {
+		if r.digits[i] != 0 {
+			break
+		}
+		r.digits = r.digits[1:]
+	}
+	for i := len(r.digits) - 1; i >= 0; i-- {
+		if r.digits[i] != 0 {
+			break
+		}
+		r.digits = r.digits[:i]
+	}
 }
