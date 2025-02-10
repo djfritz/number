@@ -3,6 +3,7 @@ package real
 import (
 	"fmt"
 	"math"
+	"strconv"
 )
 
 type Real struct {
@@ -36,6 +37,25 @@ func (r *Real) Copy() *Real {
 	}
 }
 
+func initFrom(x *Real) *Real {
+	return &Real{
+		digits:    []byte{},
+		precision: x.precision,
+	}
+}
+
+func initFrom2(x, y *Real) *Real {
+	r := &Real{
+		digits: []byte{},
+	}
+	if x.precision > y.precision {
+		r.precision = x.precision
+	} else {
+		r.precision = y.precision
+	}
+	return r
+}
+
 func (r *Real) SetInt64(x int64) {
 	if x < 0 {
 		r.SetUint64(uint64((^x) + 1))
@@ -43,7 +63,7 @@ func (r *Real) SetInt64(x int64) {
 	} else {
 		r.SetUint64(uint64(x))
 	}
-	r.fix()
+	r.round()
 }
 
 func (r *Real) SetUint64(x uint64) {
@@ -55,7 +75,7 @@ func (r *Real) SetUint64(x uint64) {
 		r.digits = append([]byte{byte(x % 10)}, r.digits...)
 		x /= 10
 	}
-	r.fix()
+	r.round()
 }
 
 func (r *Real) SetFloat64(x float64) {
@@ -77,13 +97,52 @@ func (r *Real) SetFloat64(x float64) {
 		return
 	}
 
-	fmant, _ := math.Frexp(x)
-	r.SetUint64(1<<63 | math.Float64bits(fmant)<<11)
-	r.decimal = uint(len(r.digits))
+	// an efficient binary to decimal algorithm is still a fantasy. Any
+	// approach here would be no better than just doing dota() and parsing
+	// the string, so we do exactly that...
+	s := fmt.Sprintf("%.17e", x)
+	if s[0] == '-' {
+		r.negative = true
+		s = s[1:]
+	}
 
-	// r = r.Mul(r.Pow(2,exp))
+	// digits
+	var hasDecimal bool
+	for i, v := range s {
+		if v == 'e' {
+			s = s[i+1:]
+			break
+		}
+		if v == '.' {
+			hasDecimal = true
+			continue
+		}
+		r.digits = append(r.digits, byte(v)-0x30)
+		if hasDecimal {
+			r.decimal++
+		}
+	}
 
-	// TODO: round precision
+	// exponent
+	var padFront bool
+	if s[0] == '-' {
+		padFront = true
+		s = s[1:]
+	}
+
+	exp, err := strconv.Atoi(s)
+	if err != nil {
+		panic("could not parse exponent")
+	}
+	pad := make([]byte, exp)
+	if padFront {
+		r.digits = append(pad, r.digits...)
+		r.decimal += uint(exp)
+	} else {
+		r.digits = append(r.digits, pad...)
+	}
+
+	r.round()
 }
 
 func (r *Real) String() string {

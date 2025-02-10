@@ -35,34 +35,63 @@ func adjust(x, y *Real) ([]byte, []byte, uint) {
 	return a, b, d
 }
 
-func (r *Real) fix() {
+func (r *Real) round() {
 	if r.precision == 0 {
-		r.precision = 64
+		r.precision = 100
 	}
+	r.roundTo(r.precision)
+}
+
+func (r *Real) roundTo(p uint) {
+	defer r.trim()
+
 	// TODO: other rounding modes
-	if r.decimal <= r.precision {
+	if r.decimal <= p {
 		return
 	}
 
-	trim := r.decimal - r.precision
-	rd := r.digits[uint(len(r.digits))-trim]
-	r.digits = r.digits[:uint(len(r.digits))-trim]
-	r.decimal = r.precision
+	// rounding position
+	rp := uint(len(r.digits)) - (r.decimal - p) - 1
 
-	if rd < 5 {
-		// round down
-	} else if rd > 5 {
-		// round up
-		r.digits[len(r.digits)-1]++
-	} else { // round to nearest even
-		if r.digits[len(r.digits)-1]%2 != 0 {
-			r.digits[len(r.digits)-1]++
+	// attempt correct rounding to the precision we have
+
+	for i := uint(len(r.digits)) - 1; i > rp; i-- {
+		d := r.digits[i]
+		switch {
+		case d < 5:
+			// round down
+		case d > 5:
+			// round up
+			r.digits[i-1]++
+		case d == 5:
+			// round to nearest even
+			if r.digits[i-1]%2 != 0 {
+				r.digits[i-1]++
+			}
 		}
+		r.digits[i] = 0
 	}
+
+	// now unwind to the left to make sure we don't have any lingering carry
+	for i := rp; i >= 0; i-- {
+		if r.digits[i] < 10 {
+			break
+		}
+		r.digits[i] -= 10
+
+		if i == 0 {
+			// pad
+			r.digits = append([]byte{1}, r.digits...)
+			break
+		}
+		r.digits[i-1]++
+	}
+
+	r.digits = r.digits[:rp+1]
+	r.decimal = p
 }
 
 func (r *Real) trim() {
-	r.fix()
 	for _, v := range r.digits[:uint(len(r.digits))-r.decimal] {
 		if v != 0 {
 			break
@@ -89,7 +118,18 @@ func (r *Real) Compare(x *Real) int {
 		return -1
 	}
 
-	a, b, _ := adjust(r, x)
+	p := r.precision
+	if x.precision < p {
+		p = x.precision
+	}
+
+	a, b, d := adjust(r, x)
+
+	if d > p {
+		// we only care about the digits up to the given precision
+		a = a[:uint(len(a))-(d-p)-1]
+		b = b[:uint(len(b))-(d-p)-1]
+	}
 
 	for i := range a {
 		if a[i] > b[i] {
@@ -128,15 +168,20 @@ func (r *Real) Abs() *Real {
 }
 
 func (r *Real) Add(x *Real) *Real {
+	z := r.add(x)
+	z.round()
+	return z
+}
+
+func (r *Real) add(x *Real) *Real {
 	// TODO: deal with forms
 
 	a, b, d := adjust(r, x)
 	a = append([]byte{0}, a...)
 	b = append([]byte{0}, b...)
 
-	z := &Real{
-		decimal: d,
-	}
+	z := initFrom(r)
+	z.decimal = d
 
 	if r.negative == x.negative {
 		z.negative = r.negative
@@ -166,26 +211,37 @@ func (r *Real) Add(x *Real) *Real {
 	}
 
 	z.digits = a
-	z.trim()
 
-	// TODO: rounding
+	z.trim()
 
 	return z
 
 }
 
 func (r *Real) Sub(x *Real) *Real {
+	z := r.sub(x)
+	z.round()
+	return z
+}
+
+func (r *Real) sub(x *Real) *Real {
 	y := x.Copy()
 	y.negative = !y.negative
-	return r.Add(y)
+	return r.add(y)
 }
 
 func (r *Real) Mul(x *Real) *Real {
+	z := r.mul(x)
+	z.round()
+	return z
+}
+
+func (r *Real) mul(x *Real) *Real {
 	// TODO: inline addition here to reduce allocations
 
 	a, b, d := adjust(r, x)
 
-	product := new(Real)
+	product := initFrom2(r, x)
 
 	for i := len(a) - 1; i >= 0; i-- {
 		z := make([]byte, len(b)+1)
@@ -199,8 +255,9 @@ func (r *Real) Mul(x *Real) *Real {
 		shift := len(a) - 1 - i
 		pad := make([]byte, shift)
 		z = append(z, pad...)
-		zr := &Real{digits: z}
-		product = product.Add(zr)
+		zr := initFrom(product)
+		zr.digits = z
+		product = product.add(zr)
 	}
 
 	product.decimal = d * 2
@@ -214,46 +271,18 @@ func (r *Real) Mul(x *Real) *Real {
 }
 
 func (r *Real) Div(x *Real) *Real {
-	xr := x.Reciprocal()
-	return r.Mul(xr)
+	z := r.div(x)
+	z.round()
+	return z
+}
+
+func (r *Real) div(x *Real) *Real {
+	xr := x.reciprocal()
+	return r.mul(xr)
 }
 
 func (r *Real) Reciprocal() *Real {
-	// scale r to be 0 < r < 1
-	rc := r.Copy()
-	dshift := uint(len(r.digits)) - r.decimal
-	rc.decimal = uint(len(rc.digits))
-
-	five := new(Real)
-	five.SetUint64(5)
-	four := new(Real)
-	four.SetUint64(4)
-	x0 := four.Sub(five.Mul(rc))
-	x0.SetUint64(2)
-
-	// f(x) = (1/x) - D
-	// xi+1 = xi(2-(D*xi))
-
-	x := x0
-	two := new(Real)
-	two.SetUint64(2)
-	for i := 0; i < 10; i++ { // TODO: precision escape
-		xn := x.Mul(two.Sub(rc.Mul(x)))
-		if xn.Compare(x) == 0 {
-			x = xn
-			break
-		}
-		x = xn
-	}
-
-	// restore shift
-	x.decimal += dshift
-	if x.decimal > uint(len(x.digits)) {
-		pad := make([]byte, x.decimal-uint(len(x.digits)))
-		x.digits = append(pad, x.digits...)
-	}
-
-	x.trim()
-
-	return x
+	z := r.reciprocal()
+	z.round()
+	return z
 }

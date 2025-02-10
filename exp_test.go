@@ -5,11 +5,15 @@ import "testing"
 func TestExp1(t *testing.T) {
 	x := new(Real)
 	x.SetUint64(13)
-	x.fix()
+	x.round()
 
 	z := x.Exp()
+	z.precision = 8
+	z.round()
 
-	t.Fatal(z)
+	if z.String() != "442413.39200892" {
+		t.Fatal("invalid exp", z.String())
+	}
 }
 
 func TestFactorial(t *testing.T) {
@@ -44,5 +48,31 @@ func TestIPow(t *testing.T) {
 	z = z.ipow(50)
 	if z.String() != "88817841970012523233890533447265625" {
 		t.Fatal("invalid factorial", z.String())
+	}
+}
+
+func TestLn(t *testing.T) {
+	x := new(Real)
+	x.SetUint64(13)
+
+	z := x.Ln()
+	z.precision = 20
+	z.round()
+
+	if z.String() != "442413.39200892" {
+		t.Fatal("invalid exp", z.String())
+	}
+}
+
+func TestLn2(t *testing.T) {
+	x := new(Real)
+	x.SetFloat64(.014)
+
+	z := x.Ln()
+	z.precision = 20
+	z.round()
+
+	if z.String() != "442413.39200892" {
+		t.Fatal("invalid exp", z.String())
 	}
 }

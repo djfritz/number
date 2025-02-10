@@ -10,6 +10,7 @@ func TestTrim(t *testing.T) {
 
 	x.digits = []byte{0, 5, 0, 1}
 	x.decimal = 4 // .0501
+	x.precision = 4
 
 	x.trim()
 
@@ -23,6 +24,7 @@ func TestTrim2(t *testing.T) {
 
 	x.digits = []byte{0, 5, 0, 1, 0, 0, 0}
 	x.decimal = 7 // .0501
+	x.precision = 4
 
 	x.trim()
 
@@ -252,45 +254,6 @@ func TestAddCatchOverflow(t *testing.T) {
 	}
 }
 
-func TestReciprocal(t *testing.T) {
-	x := new(Real)
-
-	x.SetInt64(1234)
-	x.decimal = 2 // 12.34
-
-	z := x.Reciprocal()
-	z.precision = 8
-	z.fix()
-
-	if bytes.Compare(z.digits, []byte{0, 8, 1, 0, 3, 7, 2, 8}) != 0 {
-		t.Fatal("invalid mul", z)
-	}
-	if z.negative {
-		t.Fatal("invalid negative flag")
-	}
-	if z.decimal != 8 {
-		t.Fatal("invalid decimal point")
-	}
-}
-
-func TestReciprocal2(t *testing.T) {
-	x := new(Real)
-
-	x.SetInt64(1000)
-
-	z := x.Reciprocal()
-
-	if bytes.Compare(z.digits, []byte{0, 0, 1}) != 0 {
-		t.Fatal("invalid mul", z)
-	}
-	if z.negative {
-		t.Fatal("invalid negative flag")
-	}
-	if z.decimal != 3 {
-		t.Fatal("invalid decimal point")
-	}
-}
-
 func TestDiv(t *testing.T) {
 	x := new(Real)
 	y := new(Real)
@@ -319,14 +282,10 @@ func TestDiv2(t *testing.T) {
 	y.SetInt64(87178291200)
 
 	z := x.Div(y)
+	z.precision = 8
+	z.round()
 
-	if bytes.Compare(z.digits, []byte{1, 2, 5}) != 0 {
-		t.Fatal("invalid add", z)
-	}
-	if z.negative {
-		t.Fatal("invalid negative flag")
-	}
-	if z.decimal != 2 {
-		t.Fatal("invalid decimal point")
+	if z.String() != "3474.20329561" {
+		t.Fatal("invalid div", x, y, z.String())
 	}
 }

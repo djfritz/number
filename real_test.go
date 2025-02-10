@@ -5,6 +5,48 @@ import (
 	"testing"
 )
 
+func TestSetFloat64(t *testing.T) {
+	r := new(Real)
+	r.SetFloat64(1.23456789)
+	if bytes.Compare(r.digits, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 0}) != 0 {
+		t.Fatal("SetFloat64 failed", r)
+	}
+	if r.negative {
+		t.Fatal("negative flag set")
+	}
+	if r.decimal != 0 {
+		t.Fatal("non-zero decimal place")
+	}
+}
+
+func TestSetFloat642(t *testing.T) {
+	r := new(Real)
+	r.SetFloat64(.0000000000012414)
+	if bytes.Compare(r.digits, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 0}) != 0 {
+		t.Fatal("SetFloat64 failed", r)
+	}
+	if r.negative {
+		t.Fatal("negative flag set")
+	}
+	if r.decimal != 0 {
+		t.Fatal("non-zero decimal place")
+	}
+}
+
+func TestSetFloat643(t *testing.T) {
+	r := new(Real)
+	r.SetFloat64(12414223942231414151231231)
+	if bytes.Compare(r.digits, []byte{1, 2, 3, 4, 5, 6, 7, 8, 9, 0}) != 0 {
+		t.Fatal("SetFloat64 failed", r)
+	}
+	if r.negative {
+		t.Fatal("negative flag set")
+	}
+	if r.decimal != 0 {
+		t.Fatal("non-zero decimal place")
+	}
+}
+
 func TestSetUint64(t *testing.T) {
 	r := new(Real)
 
