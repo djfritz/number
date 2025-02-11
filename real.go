@@ -263,6 +263,64 @@ func (r *Real) roundTo(p uint) {
 // the returned byte slices equals that of the higher precision operand, and
 // padding is added to ensure the byte slices are the same length. Shifted
 // values are rounded according to the rounding mode set in that operand.
-//func adjust(x, y *Real) ([]byte, []byte, int) {
-//
-//}
+func adjust(x, y *Real) ([]byte, []byte, int) {
+	p := x.precision
+	if y.precision > p {
+		p = y.precision
+	}
+
+	e := x.exponent
+	if y.exponent > e {
+		e = y.exponent
+	}
+
+	ar := x
+	br := y
+	if uint(len(x.significand)) > p {
+		ar = x.Copy()
+		ar.SetPrecision(p)
+	}
+	if uint(len(y.significand)) > p {
+		br = y.Copy()
+		br.SetPrecision(p)
+	}
+
+	fmt.Println(y.exponent-e, br.significand)
+	a := shift(ar.significand, x.exponent-e, p)
+	b := shift(br.significand, y.exponent-e, p)
+	return a, b, e
+}
+
+// Shift the byte slice by e bytes, keeping the size of the byte slice in p.
+// Pad to p bytes if needed. Positive e is a left shift.
+func shift(x []byte, e int, p uint) []byte {
+	z := append([]byte{}, x...)
+	if uint(len(z)) > p {
+		z = z[:p]
+	} else {
+		pad := make([]byte, p-uint(len(z)))
+		z = append(z, pad...)
+	}
+
+	if e != 0 {
+		eabs := e
+		if eabs < 0 {
+			eabs *= -1
+		}
+		if eabs > len(z) {
+			// the entire slice will be shifted off, just return zeroes
+			z = make([]byte, p)
+		} else {
+			pad := make([]byte, eabs)
+			if e < 0 {
+				z = z[:len(z)-eabs]
+				z = append(pad, z...)
+			} else if e > 0 {
+				z = z[eabs:]
+				z = append(z, pad...)
+			}
+		}
+	}
+
+	return z
+}
