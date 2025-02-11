@@ -154,7 +154,7 @@ func (r *Real) SetFloat64(x float64) {
 	// exponent
 	exp, err := strconv.Atoi(s)
 	if err != nil {
-		panic("could not parse exponent")
+		panic(fmt.Sprintf("could not parse exponent %v", s))
 	}
 	r.exponent = exp
 	r.round()

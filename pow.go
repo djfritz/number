@@ -1,5 +1,12 @@
 package real
 
+func (x *Real) Pow(y *Real) *Real {
+	// x^y == e^(y*ln(x))
+	a := x.Ln()
+	b := y.Mul(a)
+	return b.Exp()
+}
+
 func (x *Real) ipow(y int) *Real {
 	if y < 0 {
 		return x.ipow(y * -1).Reciprocal()
@@ -20,4 +27,11 @@ func (x *Real) ipow(y int) *Real {
 	} else {
 		return x.ipow(y - 1).Mul(x)
 	}
+}
+
+func (x *Real) Sqrt() *Real {
+	half := initFrom(x)
+	half.SetUint64(5)
+	half.exponent = -1
+	return x.Pow(half)
 }

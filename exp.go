@@ -1,6 +1,6 @@
 package real
 
-const MaxExpIterations = 100
+const MaxExpIterations = 1000
 
 func (x *Real) Exp() *Real {
 	z := initFrom(x)
