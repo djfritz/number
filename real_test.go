@@ -372,3 +372,35 @@ func TestAdjust2(t *testing.T) {
 		t.Fatal("invalid exponent", e)
 	}
 }
+
+func TestInteger1(t *testing.T) {
+	x := NewFloat64(1.234)
+	z := x.Integer()
+	if bytes.Compare(z.significand, []byte{1}) != 0 {
+		t.Fatal("invalid significand", z.significand)
+	}
+}
+
+func TestInteger2(t *testing.T) {
+	x := NewFloat64(12.34)
+	z := x.Integer()
+	if bytes.Compare(z.significand, []byte{1, 2}) != 0 {
+		t.Fatal("invalid significand", z.significand)
+	}
+}
+
+func TestInteger3(t *testing.T) {
+	x := NewFloat64(123.4)
+	z := x.Integer()
+	if bytes.Compare(z.significand, []byte{1, 2, 3}) != 0 {
+		t.Fatal("invalid significand", z.significand)
+	}
+}
+
+func TestInteger4(t *testing.T) {
+	x := NewFloat64(1234.0)
+	z := x.Integer()
+	if bytes.Compare(z.significand, []byte{1, 2, 3, 4}) != 0 {
+		t.Fatal("invalid significand", z.significand)
+	}
+}

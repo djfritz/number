@@ -345,3 +345,14 @@ func shift(x []byte, e int, p uint) []byte {
 
 	return z
 }
+
+// Return the integer part of a real number.
+func (x *Real) Integer() *Real {
+	z := x.Copy()
+	if z.exponent < 0 {
+		z.SetUint64(0)
+	} else if z.exponent < len(x.significand)-1 {
+		z.significand = z.significand[:z.exponent+1]
+	}
+	return z
+}
