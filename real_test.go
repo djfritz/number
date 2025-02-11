@@ -183,6 +183,20 @@ func TestTrim6(t *testing.T) {
 	}
 }
 
+func TestTrim7(t *testing.T) {
+	r := new(Real)
+	r.significand = []byte{0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 0, 0, 0, 0, 0}
+	r.exponent = 7
+
+	r.trim()
+	if bytes.Compare(r.significand, []byte{1, 2, 3, 4}) != 0 {
+		t.Fatal("invalid trim", r.significand)
+	}
+	if r.exponent != 0 {
+		t.Fatal("invalid exponent", r.exponent)
+	}
+}
+
 func TestRound1(t *testing.T) {
 	r := NewUint64(12345678900000)
 	if r.String() != "12345678900000" {
@@ -226,6 +240,36 @@ func TestRound4(t *testing.T) {
 	r.SetPrecision(5)
 
 	if r.String() != "12345000000000" {
+		t.Fatal("invalid round", r.String())
+	}
+}
+
+func TestRound5(t *testing.T) {
+	r := NewUint64(1233999999)
+	r.exponent = 0
+	r.SetPrecision(7)
+
+	if r.String() != "1.234" {
+		t.Fatal("invalid round", r.String())
+	}
+}
+
+func TestRound6(t *testing.T) {
+	r := NewUint64(1233999999)
+	r.exponent = 0
+	r.SetPrecision(8)
+
+	if r.String() != "1.234" {
+		t.Fatal("invalid round", r.String())
+	}
+}
+
+func TestRound7(t *testing.T) {
+	r := NewUint64(1233999999)
+	r.exponent = 0
+	r.SetPrecision(4)
+
+	if r.String() != "1.234" {
 		t.Fatal("invalid round", r.String())
 	}
 }

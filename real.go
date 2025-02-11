@@ -199,6 +199,7 @@ func (r *Real) trim() {
 		}
 	}
 	r.significand = r.significand[i:]
+	r.exponent -= i
 	for i := len(r.significand) - 1; i >= 0; i-- {
 		if r.significand[i] != 0 {
 			break
@@ -224,7 +225,6 @@ func (r *Real) roundTo(p uint) {
 		return
 	}
 
-	// TODO: other rounding modes
 	for i := uint(len(r.significand)) - 1; i >= p; i-- {
 		d := r.significand[i]
 		switch {
@@ -243,7 +243,7 @@ func (r *Real) roundTo(p uint) {
 	}
 
 	// now unwind to the left to make sure we don't have any lingering carry
-	for i := p; i >= 0; i-- {
+	for i := p - 1; i >= 0; i-- {
 		if r.significand[i] < 10 {
 			break
 		}
