@@ -1,6 +1,7 @@
 package real
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 )
@@ -30,6 +31,7 @@ func (x *Real) Ln() *Real {
 	two := initFrom(x)
 	two.SetInt64(2)
 
+	var converged bool
 	for i := 0; i < MaxLnIterations; i++ {
 		ez := z.Exp()
 		n := xscaled.Sub(ez)
@@ -39,9 +41,13 @@ func (x *Real) Ln() *Real {
 		znext := z.Add(q2)
 		if znext.Compare(z) == 0 {
 			z = znext
+			converged = true
 			break
 		}
 		z = znext
+	}
+	if !converged {
+		panic(fmt.Sprintf("failed to converge ln(%v)", x))
 	}
 
 	// exponent part

@@ -1,6 +1,9 @@
 package real
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
 
 const (
 	MaxReciprocalIterations = 1000
@@ -24,13 +27,18 @@ func (x *Real) Reciprocal() *Real {
 	two := initFrom(x)
 	two.SetInt64(2)
 
+	var converged bool
 	for i := 0; i < MaxReciprocalIterations; i++ {
 		zn := z.Mul(two.Sub(xscaled.Mul(z)))
 		if zn.Compare(z) == 0 {
 			z = zn
+			converged = true
 			break
 		}
 		z = zn
+	}
+	if !converged {
+		panic(fmt.Sprintf("failed to converge 1/%v", x))
 	}
 
 	z.exponent += x.exponent * -1
