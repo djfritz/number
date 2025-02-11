@@ -190,7 +190,7 @@ func (r *Real) String() string {
 	return s
 }
 
-// Trim removes leading and trailing zeroes from a normalized value.
+// Trim removes leading and trailing zeros from a normalized value.
 func (r *Real) trim() {
 	var i int
 	for i = 0; i < len(r.significand); i++ {
@@ -285,7 +285,6 @@ func adjust(x, y *Real) ([]byte, []byte, int) {
 		br.SetPrecision(p)
 	}
 
-	fmt.Println(y.exponent-e, br.significand)
 	a := shift(ar.significand, x.exponent-e, p)
 	b := shift(br.significand, y.exponent-e, p)
 	return a, b, e
@@ -308,7 +307,7 @@ func shift(x []byte, e int, p uint) []byte {
 			eabs *= -1
 		}
 		if eabs > len(z) {
-			// the entire slice will be shifted off, just return zeroes
+			// the entire slice will be shifted off, just return zeros
 			z = make([]byte, p)
 		} else {
 			pad := make([]byte, eabs)
