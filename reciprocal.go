@@ -3,7 +3,7 @@ package real
 import "strconv"
 
 const (
-	MaxReciprocalIterations = 10000
+	MaxReciprocalIterations = 100
 )
 
 func (x *Real) Reciprocal() *Real {

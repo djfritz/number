@@ -14,7 +14,7 @@ type Real struct {
 }
 
 const (
-	DefaultPrecision = 100 // the default precision for a real number. Expressed in decimal digits.
+	DefaultPrecision = 34 // the default precision for a real number. Expressed in decimal digits.
 )
 
 // Copy returns a deep copy of the real value
@@ -168,6 +168,7 @@ func (r *Real) String() string {
 	}
 	if len(r.significand) == 0 {
 		s += "0"
+		return s
 	}
 	s += fmt.Sprintf("%c", r.significand[0]+0x30)
 
