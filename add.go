@@ -41,3 +41,9 @@ func (x *Real) Add(y *Real) *Real {
 
 	return z
 }
+
+func (x *Real) Sub(y *Real) *Real {
+	yn := y.Copy()
+	yn.negative = !yn.negative
+	return x.Add(yn)
+}

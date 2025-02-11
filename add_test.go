@@ -44,3 +44,23 @@ func TestAdd4(t *testing.T) {
 		t.Fatal("invalid add", z)
 	}
 }
+
+func TestSub1(t *testing.T) {
+	x := NewInt64(-100)
+	y := NewInt64(-5)
+
+	z := x.Sub(y)
+	if z.Compare(NewInt64(-95)) != 0 {
+		t.Fatal("invalid add", z)
+	}
+}
+
+func TestSub2(t *testing.T) {
+	x := NewInt64(1)
+	y := NewInt64(5)
+
+	z := x.Sub(y)
+	if z.Compare(NewInt64(-4)) != 0 {
+		t.Fatal("invalid add", z)
+	}
+}
