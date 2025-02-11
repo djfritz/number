@@ -16,10 +16,13 @@ func (x *Real) Reciprocal() *Real {
 		panic("could not parse float")
 	}
 	f = 1 / f
-	z0 := NewFloat64(f)
+
+	z0 := initFrom(x)
+	z0.SetFloat64(f)
 
 	z := z0
-	two := NewInt64(2)
+	two := initFrom(x)
+	two.SetInt64(2)
 
 	for i := 0; i < MaxReciprocalIterations; i++ {
 		zn := z.Mul(two.Sub(xscaled.Mul(z)))

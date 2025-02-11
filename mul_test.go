@@ -42,3 +42,13 @@ func TestMul4(t *testing.T) {
 		t.Fatal("invalid mul", z)
 	}
 }
+
+func TestMul5(t *testing.T) {
+	x := NewInt64(5)
+	y := NewInt64(4)
+
+	z := x.Mul(y)
+	if z.Compare(NewInt64(20)) != 0 {
+		t.Fatal("invalid mul", z)
+	}
+}

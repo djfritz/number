@@ -12,15 +12,14 @@ func (x *Real) Mul(y *Real) *Real {
 				p[j+1] = p[j+1] % 10
 			}
 		}
-		e := len(x.significand) - i
 		zr := initFrom(z)
-		zr.exponent = e
+		zr.exponent = 1 - i
 		zr.significand = p
 		zr.trim()
 		z = z.Add(zr)
 	}
 
-	z.exponent = x.exponent + y.exponent
+	z.exponent += x.exponent + y.exponent
 	if x.negative != y.negative {
 		z.negative = true
 	}
