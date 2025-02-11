@@ -166,6 +166,28 @@ func (r *Real) String() string {
 	if r.negative {
 		s = "-"
 	}
+	if len(r.significand) == 0 {
+		s += "0"
+	}
+	s += fmt.Sprintf("%c", r.significand[0]+0x30)
+
+	if len(r.significand) > 1 {
+		s += "."
+
+		for _, v := range r.significand[1:] {
+			s += fmt.Sprintf("%c", v+0x30)
+		}
+	}
+	s += fmt.Sprintf("e%v", r.exponent)
+	return s
+}
+
+// Return the string form of the real number in ??? notation.
+func (r *Real) StringRegular() string {
+	var s string
+	if r.negative {
+		s = "-"
+	}
 	if r.exponent < 0 {
 		s += "0."
 		for i := 0; i < (r.exponent*-1)-1; i++ {

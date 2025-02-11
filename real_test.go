@@ -113,12 +113,12 @@ func TestSetInt64(t *testing.T) {
 func TestString(t *testing.T) {
 	r := new(Real)
 	r.SetInt64(-9223372036854775808) // smallest int64
-	if r.String() != "-9223372036854775808" {
+	if r.String() != "-9.223372036854775808e18" {
 		t.Fatal("invalid string", r.String())
 	}
 	r.SetInt64(501)
 	r.exponent = 1
-	if r.String() != "50.1" {
+	if r.String() != "5.01e1" {
 		t.Fatal("invalid string", r.String())
 	}
 }
@@ -199,47 +199,38 @@ func TestTrim7(t *testing.T) {
 
 func TestRound1(t *testing.T) {
 	r := NewUint64(12345678900000)
-	if r.String() != "12345678900000" {
+	if r.String() != "1.23456789e13" {
 		t.Fatal("invalid NewUint64")
 	}
 	r.SetPrecision(5)
 
-	if r.String() != "12346000000000" {
+	if r.String() != "1.2346e13" {
 		t.Fatal("invalid round", r.String())
 	}
 }
 
 func TestRound2(t *testing.T) {
 	r := NewUint64(12345678900000)
-	if r.String() != "12345678900000" {
-		t.Fatal("invalid NewUint64")
-	}
 
-	if r.String() != "12345678900000" {
+	if r.String() != "1.23456789e13" {
 		t.Fatal("invalid round", r.String())
 	}
 }
 
 func TestRound3(t *testing.T) {
 	r := NewUint64(12345478900000)
-	if r.String() != "12345478900000" {
-		t.Fatal("invalid NewUint64")
-	}
 	r.SetPrecision(5)
 
-	if r.String() != "12346000000000" {
+	if r.String() != "1.2346e13" {
 		t.Fatal("invalid round", r.String())
 	}
 }
 
 func TestRound4(t *testing.T) {
 	r := NewUint64(12345378900000)
-	if r.String() != "12345378900000" {
-		t.Fatal("invalid NewUint64")
-	}
 	r.SetPrecision(5)
 
-	if r.String() != "12345000000000" {
+	if r.String() != "1.2345e13" {
 		t.Fatal("invalid round", r.String())
 	}
 }
@@ -249,7 +240,7 @@ func TestRound5(t *testing.T) {
 	r.exponent = 0
 	r.SetPrecision(7)
 
-	if r.String() != "1.234" {
+	if r.String() != "1.234e0" {
 		t.Fatal("invalid round", r.String())
 	}
 }
@@ -259,7 +250,7 @@ func TestRound6(t *testing.T) {
 	r.exponent = 0
 	r.SetPrecision(8)
 
-	if r.String() != "1.234" {
+	if r.String() != "1.234e0" {
 		t.Fatal("invalid round", r.String())
 	}
 }
@@ -269,7 +260,7 @@ func TestRound7(t *testing.T) {
 	r.exponent = 0
 	r.SetPrecision(4)
 
-	if r.String() != "1.234" {
+	if r.String() != "1.234e0" {
 		t.Fatal("invalid round", r.String())
 	}
 }
