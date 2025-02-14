@@ -1,6 +1,8 @@
 package real
 
-import "bytes"
+import (
+	"bytes"
+)
 
 func (x *Real) Add(y *Real) *Real {
 	x.validate()
@@ -17,7 +19,7 @@ func (x *Real) Add(y *Real) *Real {
 		z.CopyValue(y)
 		return z
 	} else if y.IsZero() {
-		x.CopyValue(x)
+		z.CopyValue(x)
 		return z
 	} else if x.Compare(y) == 0 {
 		return z
@@ -224,15 +226,18 @@ func (z *Real) sub(x, y *Real) {
 	case shiftAmount < 0:
 		// y's exponent is larger
 		z.CopyValue(y)
-		addend = x.significand
+		addend = make([]byte, len(x.significand))
+		copy(addend, x.significand)
 	case shiftAmount == 0:
 		// same exponent, just pad
 		z.CopyValue(x)
-		addend = y.significand
+		addend = make([]byte, len(y.significand))
+		copy(addend, y.significand)
 	case shiftAmount > 0:
 		// x's exponent is larger
 		z.CopyValue(x)
-		addend = y.significand
+		addend = make([]byte, len(y.significand))
+		copy(addend, y.significand)
 	}
 
 	// If the addend's significand extends beyond z's, we must pad.
@@ -246,7 +251,7 @@ func (z *Real) sub(x, y *Real) {
 
 	var carry bool
 	for ; i >= 0; i-- {
-		if z.significand[i+sa] > addend[i] {
+		if z.significand[i+sa] >= addend[i] {
 			z.significand[i+sa] -= addend[i]
 		} else {
 			z.significand[i+sa] += 10 - addend[i]

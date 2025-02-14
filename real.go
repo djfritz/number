@@ -266,6 +266,7 @@ func (r *Real) roundTo(p uint) {
 			if i == 0 {
 				r.significand[0] = 1
 				r.exponent++
+				return
 			} else {
 				r.significand[i-1]++
 			}
@@ -275,6 +276,7 @@ func (r *Real) roundTo(p uint) {
 				if i == 0 {
 					r.significand[0] = 1
 					r.exponent++
+					return
 				} else {
 					r.significand[i-1]++
 				}

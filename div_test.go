@@ -7,7 +7,6 @@ func TestDiv1(t *testing.T) {
 	y := NewInt64(5)
 
 	q := x.Div(y)
-	q.SetPrecision(8)
 
 	if q.Compare(NewInt64(2)) != 0 {
 		t.Fatal("invalid div", q)
@@ -19,7 +18,6 @@ func TestDiv2(t *testing.T) {
 	y := NewInt64(50)
 
 	q := x.Div(y)
-	q.SetPrecision(8)
 
 	expected := NewInt64(4)
 	expected.exponent = -2
@@ -33,9 +31,8 @@ func TestDiv3(t *testing.T) {
 	y := NewInt64(5011513)
 
 	q := x.Div(y)
-	q.SetPrecision(8)
 
-	if q.String() != "4.5894324e-6" {
+	if q.String() != "4.589432373017889008768409859457613e-6" {
 		t.Fatal("invalid div", q)
 	}
 }

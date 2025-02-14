@@ -25,7 +25,8 @@ func (x *Real) mul(y *Real) *Real {
 		zr.exponent = 1 - i
 		zr.significand = p
 		zr.trim()
-		z = z.Add(zr)
+		zn := z.Add(zr)
+		z = zn
 	}
 
 	z.exponent += x.exponent + y.exponent

@@ -52,3 +52,17 @@ func TestMul5(t *testing.T) {
 		t.Fatal("invalid mul", z)
 	}
 }
+
+func TestMul6(t *testing.T) {
+	x := new(Real)
+	x.significand = []byte{8, 1, 0, 3, 7, 2, 7, 7, 1, 4, 7, 4, 8, 7, 8, 4, 0, 6}
+	x.exponent = -1
+	y := new(Real)
+	y.significand = []byte{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 9, 9, 6}
+	//8.1000000000000003806676e-1
+
+	z := x.Mul(y)
+	if z.Compare(NewInt64(20)) != 0 {
+		t.Fatal("invalid mul", z)
+	}
+}

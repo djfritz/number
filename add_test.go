@@ -51,7 +51,7 @@ func TestSub1(t *testing.T) {
 
 	z := x.Sub(y)
 	if z.Compare(NewInt64(-95)) != 0 {
-		t.Fatal("invalid add", z)
+		t.Fatal("invalid sub", z)
 	}
 }
 
@@ -61,6 +61,17 @@ func TestSub2(t *testing.T) {
 
 	z := x.Sub(y)
 	if z.Compare(NewInt64(-4)) != 0 {
-		t.Fatal("invalid add", z)
+		t.Fatal("invalid sub", z)
+	}
+}
+
+func TestSub3(t *testing.T) {
+	x := NewInt64(2)
+	y := NewInt64(15)
+	y.exponent = 0
+
+	z := x.Sub(y)
+	if z.String() != "5e-1" {
+		t.Fatal("invalid sub", z)
 	}
 }

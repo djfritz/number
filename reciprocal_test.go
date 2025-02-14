@@ -14,13 +14,11 @@ func TestReciprocal1(t *testing.T) {
 }
 
 func TestReciprocal2(t *testing.T) {
-	x := NewFloat64(12.34)
+	x := NewInt64(1234)
+	x.exponent = 1
 	z := x.Reciprocal()
-	z.SetPrecision(8)
 
-	expected := NewInt64(81037277)
-	expected.exponent = -2
-	if z.Compare(expected) != 0 {
+	if z.String() != "8.103727714748784440842787682333874e-2" {
 		t.Fatal("invalid reciprocal", z)
 	}
 }

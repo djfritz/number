@@ -1,15 +1,18 @@
 package real
 
 import (
-	"fmt"
 	"strconv"
 )
 
-const (
-	MaxReciprocalIterations = 1000
-)
-
 func (x *Real) Reciprocal() *Real {
+	x2 := x.Copy()
+	x2.SetPrecision(2 * x.precision)
+	z := x2.reciprocal()
+	z.SetPrecision(x.precision)
+	return z
+}
+
+func (x *Real) reciprocal() *Real {
 	xscaled := x.Copy()
 	xscaled.exponent = 0
 
@@ -27,21 +30,12 @@ func (x *Real) Reciprocal() *Real {
 	two := initFrom(x)
 	two.SetInt64(2)
 
-	var converged bool
-	for i := 0; i < MaxReciprocalIterations; i++ {
-		zn := z.Mul(two.Sub(xscaled.Mul(z)))
-		if zn.Compare(z) == 0 {
-			z = zn
-			converged = true
-			break
-		}
+	for i := 0; i < 10; i++ {
+		zn := z.mul(two.Sub(xscaled.mul(z)))
 		z = zn
-	}
-	if !converged {
-		panic(fmt.Sprintf("failed to converge 1/%v", x))
 	}
 
 	z.exponent += x.exponent * -1
-	z.trim()
+	z.round()
 	return z
 }
