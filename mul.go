@@ -1,8 +1,17 @@
 package real
 
 func (x *Real) Mul(y *Real) *Real {
-	z := initFrom2(x, y)
+	x2 := x.Copy()
+	x2.SetPrecision(2 * x.precision)
+	y2 := y.Copy()
+	y2.SetPrecision(2 * y.precision)
+	z := x2.mul(y2)
+	z.SetPrecision(x.precision)
+	return z
+}
 
+func (x *Real) mul(y *Real) *Real {
+	z := initFrom2(x, y)
 	for i := len(x.significand) - 1; i >= 0; i-- {
 		p := make([]byte, len(y.significand)+1)
 		for j := len(y.significand) - 1; j >= 0; j-- {
