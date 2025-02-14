@@ -19,12 +19,22 @@ const (
 
 // Copy returns a deep copy of the real value
 func (r *Real) Copy() *Real {
-	return &Real{
-		significand: append([]byte{}, r.significand...),
-		negative:    r.negative,
-		exponent:    r.exponent,
-		precision:   r.precision,
+	z := &Real{
+		negative:  r.negative,
+		precision: r.precision,
 	}
+	z.CopyValue(r)
+	return z
+
+}
+
+// Copy just the value of y into x, leaving x's precision and mode the same.
+// The result will round if needed.
+func (x *Real) CopyValue(y *Real) {
+	x.exponent = y.exponent
+	x.significand = make([]byte, len(y.significand))
+	copy(x.significand, y.significand)
+	x.round()
 }
 
 // Create a zero-value real number, copying precision, form, and mode from the
@@ -233,9 +243,7 @@ func (r *Real) trim() {
 
 // Round the value to the set precision and rounding mode, if necessary.
 func (r *Real) round() {
-	if r.precision == 0 {
-		r.precision = DefaultPrecision
-	}
+	r.validate()
 	r.roundTo(r.precision)
 }
 
@@ -248,25 +256,35 @@ func (r *Real) roundTo(p uint) {
 		return
 	}
 
-	for i := uint(len(r.significand)) - 1; i >= p; i-- {
+	for i := len(r.significand) - 1; i >= int(p); i-- {
 		d := r.significand[i]
 		switch {
 		case d < 5:
 			// round down
 		case d > 5:
 			// round up
-			r.significand[i-1]++
+			if i == 0 {
+				r.significand[0] = 1
+				r.exponent++
+			} else {
+				r.significand[i-1]++
+			}
 		case d == 5:
 			// round to nearest even
 			if r.significand[i-1]%2 != 0 {
-				r.significand[i-1]++
+				if i == 0 {
+					r.significand[0] = 1
+					r.exponent++
+				} else {
+					r.significand[i-1]++
+				}
 			}
 		}
 		r.significand[i] = 0
 	}
 
 	// now unwind to the left to make sure we don't have any lingering carry
-	for i := p - 1; i >= 0; i-- {
+	for i := int(p) - 1; i >= 0; i-- {
 		if r.significand[i] < 10 {
 			break
 		}
@@ -281,72 +299,6 @@ func (r *Real) roundTo(p uint) {
 	}
 }
 
-// Adjust shifts x and y to the same exponent and returns the significand of x and y
-// as byte slices, as well as the exponent the slices have. The precision of
-// the returned byte slices equals that of the higher precision operand, and
-// padding is added to ensure the byte slices are the same length. Shifted
-// values are rounded according to the rounding mode set in that operand.
-func adjust(x, y *Real) ([]byte, []byte, int) {
-	p := x.precision
-	if y.precision > p {
-		p = y.precision
-	}
-
-	e := x.exponent
-	if y.exponent > e {
-		e = y.exponent
-	}
-
-	ar := x
-	br := y
-	if uint(len(x.significand)) > p {
-		ar = x.Copy()
-		ar.SetPrecision(p)
-	}
-	if uint(len(y.significand)) > p {
-		br = y.Copy()
-		br.SetPrecision(p)
-	}
-
-	a := shift(ar.significand, x.exponent-e, p)
-	b := shift(br.significand, y.exponent-e, p)
-	return a, b, e
-}
-
-// Shift the byte slice by e bytes, keeping the size of the byte slice in p.
-// Pad to p bytes if needed. Positive e is a left shift.
-func shift(x []byte, e int, p uint) []byte {
-	z := append([]byte{}, x...)
-	if uint(len(z)) > p {
-		z = z[:p]
-	} else {
-		pad := make([]byte, p-uint(len(z)))
-		z = append(z, pad...)
-	}
-
-	if e != 0 {
-		eabs := e
-		if eabs < 0 {
-			eabs *= -1
-		}
-		if eabs > len(z) {
-			// the entire slice will be shifted off, just return zeros
-			z = make([]byte, p)
-		} else {
-			pad := make([]byte, eabs)
-			if e < 0 {
-				z = z[:len(z)-eabs]
-				z = append(pad, z...)
-			} else if e > 0 {
-				z = z[eabs:]
-				z = append(z, pad...)
-			}
-		}
-	}
-
-	return z
-}
-
 // Return the integer part of a real number.
 func (x *Real) Integer() *Real {
 	z := x.Copy()
@@ -356,4 +308,38 @@ func (x *Real) Integer() *Real {
 		z.significand = z.significand[:z.exponent+1]
 	}
 	return z
+}
+
+func (x *Real) validate() {
+	if x.precision == 0 {
+		x.precision = DefaultPrecision
+	}
+}
+
+func umax(a, b uint) uint {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func umin(a, b uint) uint {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func abs(x int) int {
+	if x < 0 {
+		return x * -1
+	}
+	return x
+}
+
+func (r *Real) IsZero() bool {
+	if len(r.significand) == 0 {
+		return true
+	}
+	return false
 }
