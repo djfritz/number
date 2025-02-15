@@ -3,7 +3,7 @@
 // 2-clause license. See the LICENSE file for details.
 
 /*
-Package real implements arbitrary precision decimal floating point numbers and
+Package realnumber implements arbitrary precision decimal floating point numbers and
 associated arithmetic. Unlike binary floating point numbers, package real
 stores decimal digits of the significand as decimal values (stored as a
 []byte). This means that decimal representations can be stored exactly (unlike
@@ -18,4 +18,4 @@ Unless specified, real values use the default rounding mode and precision.
 
 Arithmetic operations do not modify their operands.
 */
-package real
+package realnumber

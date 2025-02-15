@@ -2,7 +2,7 @@
 // This software may be modified and distributed under the terms of the BSD
 // 2-clause license. See the LICENSE file for details.
 
-package real
+package realnumber
 
 import "testing"
 
