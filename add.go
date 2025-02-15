@@ -21,8 +21,6 @@ func (x *Real) Add(y *Real) *Real {
 	} else if y.IsZero() {
 		z.CopyValue(x)
 		return z
-	} else if x.Compare(y) == 0 {
-		return z
 	}
 
 	// x + y
@@ -276,6 +274,8 @@ func (z *Real) sub(x, y *Real) {
 }
 
 func (x *Real) Sub(y *Real) *Real {
+	x.validate()
+	y.validate()
 	yn := y.Copy()
 	yn.negative = !yn.negative
 	return x.Add(yn)

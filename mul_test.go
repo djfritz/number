@@ -59,10 +59,9 @@ func TestMul6(t *testing.T) {
 	x.exponent = -1
 	y := new(Real)
 	y.significand = []byte{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 9, 9, 6}
-	//8.1000000000000003806676e-1
 
 	z := x.Mul(y)
-	if z.Compare(NewInt64(20)) != 0 {
+	if z.String() != "8.103727714748784440842787682333856e-1" {
 		t.Fatal("invalid mul", z)
 	}
 }

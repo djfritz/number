@@ -1,10 +1,12 @@
 package real
 
 func (x *Real) Mul(y *Real) *Real {
+	x.validate()
+	y.validate()
 	x2 := x.Copy()
-	x2.SetPrecision(2 * x.precision)
+	x2.SetPrecision(2 + x.precision)
 	y2 := y.Copy()
-	y2.SetPrecision(2 * y.precision)
+	y2.SetPrecision(2 + y.precision)
 	z := x2.mul(y2)
 	z.SetPrecision(x.precision)
 	return z
@@ -24,7 +26,7 @@ func (x *Real) mul(y *Real) *Real {
 		zr := initFrom(z)
 		zr.exponent = 1 - i
 		zr.significand = p
-		zr.trim()
+		zr.round()
 		zn := z.Add(zr)
 		z = zn
 	}

@@ -5,8 +5,9 @@ import (
 )
 
 func (x *Real) Reciprocal() *Real {
+	x.validate()
 	x2 := x.Copy()
-	x2.SetPrecision(2 * x.precision)
+	x2.SetPrecision(2 + x.precision)
 	z := x2.reciprocal()
 	z.SetPrecision(x.precision)
 	return z
