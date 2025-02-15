@@ -1,9 +1,15 @@
+// Copyright 2024 David Fritz. All rights reserved.
+// This software may be modified and distributed under the terms of the BSD
+// 2-clause license. See the LICENSE file for details.
+
 package real
 
 import (
 	"bytes"
 )
 
+// Return the sum of x and y. The result will have the precision of the larger
+// addend, and the rounding mode of x.
 func (x *Real) Add(y *Real) *Real {
 	x.validate()
 	y.validate()
@@ -273,6 +279,8 @@ func (z *Real) sub(x, y *Real) {
 	}
 }
 
+// Return the subtraction of y from x. Uses the same precision and rounding
+// rules as Add().
 func (x *Real) Sub(y *Real) *Real {
 	x.validate()
 	y.validate()

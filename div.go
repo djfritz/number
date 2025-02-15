@@ -1,5 +1,11 @@
+// Copyright 2024 David Fritz. All rights reserved.
+// This software may be modified and distributed under the terms of the BSD
+// 2-clause license. See the LICENSE file for details.
+
 package real
 
+// Return the quotient of x/y. Precision and rounding rules are the same as
+// Add().
 func (x *Real) Div(y *Real) *Real {
 	x.validate()
 	x2 := x.Copy()

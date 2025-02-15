@@ -1,3 +1,7 @@
+// Copyright 2024 David Fritz. All rights reserved.
+// This software may be modified and distributed under the terms of the BSD
+// 2-clause license. See the LICENSE file for details.
+
 package real
 
 import (
@@ -14,16 +18,16 @@ type Real struct {
 }
 
 const (
-	DefaultPrecision = 34 // the default precision for a real number. Expressed in decimal digits.
+	DefaultPrecision = 34 // The default precision for a real number. Expressed in decimal digits.
 )
 
-// Copy returns a deep copy of the real value
-func (r *Real) Copy() *Real {
+// Copy returns a deep copy of the real value.
+func (x *Real) Copy() *Real {
 	z := &Real{
-		negative:  r.negative,
-		precision: r.precision,
+		negative:  x.negative,
+		precision: x.precision,
 	}
-	z.CopyValue(r)
+	z.CopyValue(x)
 	return z
 
 }
@@ -86,45 +90,45 @@ func NewFloat64(x float64) *Real {
 }
 
 // Set the precision of the given number and round if necessary.
-func (r *Real) SetPrecision(x uint) {
-	r.precision = x
+func (x *Real) SetPrecision(x uint) {
+	x.precision = x
 	r.round()
 }
 
 // Set a real number to the given signed int64. Rounding mode and precision are
 // left unchanged. If precision is lower than the given value, rounding occurs.
-func (r *Real) SetInt64(x int64) {
+func (x *Real) SetInt64(y int64) {
 	if x < 0 {
-		r.SetUint64(uint64((^x) + 1))
-		r.negative = true
+		x.SetUint64(uint64((^y) + 1))
+		x.negative = true
 	} else {
-		r.SetUint64(uint64(x))
+		x.SetUint64(uint64(y))
 	}
 }
 
 // Set a real number to the given unsigned uint64. Rounding mode and precision
 // are left unchanged. If precision is lower than the given value, rounding
 // occurs.
-func (r *Real) SetUint64(x uint64) {
-	r.significand = []byte{}
-	r.negative = false
-	r.exponent = 0
-	if x == 0 {
+func (x *Real) SetUint64(y uint64) {
+	x.significand = []byte{}
+	x.negative = false
+	x.exponent = 0
+	if y == 0 {
 		return
 	}
-	for x != 0 {
-		r.significand = append([]byte{byte(x % 10)}, r.significand...)
-		x /= 10
+	for y != 0 {
+		x.significand = append([]byte{byte(y % 10)}, x.significand...)
+		y /= 10
 	}
-	r.exponent = len(r.significand) - 1
-	r.round()
+	x.exponent = len(x.significand) - 1
+	x.round()
 }
 
 // Set a real number to the given float64. Rounding mode and precision are left
 // unchanged. If precision is lower than the given value, rounding occurs.
-func (r *Real) SetFloat64(x float64) {
-	r.significand = []byte{}
-	r.negative = false
+func (x *Real) SetFloat64(y float64) {
+	x.significand = []byte{}
+	x.negative = false
 
 	// TODO: forms
 	//	if math.IsInf(x, 1) {
@@ -136,16 +140,16 @@ func (r *Real) SetFloat64(x float64) {
 	//	} else if math.IsNaN(x) {
 	//		r.form = NAN
 	//		return
-	if x == 0 {
+	if y == 0 {
 		return
 	}
 
 	// an efficient binary to decimal algorithm is still a fantasy. Any
 	// approach here would be no better than just doing dtoa() and parsing
 	// the string, so we do exactly that...
-	s := fmt.Sprintf("%.17e", x)
+	s := fmt.Sprintf("%.17e", y)
 	if s[0] == '-' {
-		r.negative = true
+		x.negative = true
 		s = s[1:]
 	}
 
@@ -158,7 +162,7 @@ func (r *Real) SetFloat64(x float64) {
 		if v == '.' {
 			continue
 		}
-		r.significand = append(r.significand, byte(v)-0x30)
+		x.significand = append(x.significand, byte(v)-0x30)
 	}
 
 	// exponent
@@ -166,56 +170,56 @@ func (r *Real) SetFloat64(x float64) {
 	if err != nil {
 		panic(fmt.Sprintf("could not parse exponent %v", s))
 	}
-	r.exponent = exp
-	r.round()
+	x.exponent = exp
+	x.round()
 }
 
 // Return the string form of the real number in scientific notation.
-func (r *Real) String() string {
+func (x *Real) String() string {
 	var s string
-	if r.negative {
+	if x.negative {
 		s = "-"
 	}
-	if len(r.significand) == 0 {
+	if len(x.significand) == 0 {
 		s += "0"
 		return s
 	}
-	s += fmt.Sprintf("%c", r.significand[0]+0x30)
+	s += fmt.Sprintf("%c", x.significand[0]+0x30)
 
-	if len(r.significand) > 1 {
+	if len(x.significand) > 1 {
 		s += "."
 
-		for _, v := range r.significand[1:] {
+		for _, v := range x.significand[1:] {
 			s += fmt.Sprintf("%c", v+0x30)
 		}
 	}
-	s += fmt.Sprintf("e%v", r.exponent)
+	s += fmt.Sprintf("e%v", x.exponent)
 	return s
 }
 
 // Return the string form of the real number in ??? notation.
-func (r *Real) StringRegular() string {
+func (x *Real) StringRegular() string {
 	var s string
-	if r.negative {
+	if x.negative {
 		s = "-"
 	}
-	if r.exponent < 0 {
+	if x.exponent < 0 {
 		s += "0."
-		for i := 0; i < (r.exponent*-1)-1; i++ {
+		for i := 0; i < (x.exponent*-1)-1; i++ {
 			s += "0"
 		}
-		for _, v := range r.significand {
+		for _, v := range x.significand {
 			s += fmt.Sprintf("%c", v+0x30)
 		}
 	} else {
-		for i, v := range r.significand {
+		for i, v := range x.significand {
 			s += fmt.Sprintf("%c", v+0x30)
-			if i == r.exponent && i != len(r.significand)-1 {
+			if i == x.exponent && i != len(x.significand)-1 {
 				s += "."
 			}
 		}
-		if r.exponent > len(r.significand)-1 {
-			for i := 0; i < r.exponent-(len(r.significand)-1); i++ {
+		if x.exponent > len(x.significand)-1 {
+			for i := 0; i < x.exponent-(len(x.significand)-1); i++ {
 				s += "0"
 			}
 		}
@@ -224,80 +228,80 @@ func (r *Real) StringRegular() string {
 }
 
 // Trim removes leading and trailing zeros from a normalized value.
-func (r *Real) trim() {
+func (x *Real) trim() {
 	var i int
-	for i = 0; i < len(r.significand); i++ {
-		if r.significand[i] != 0 {
+	for i = 0; i < len(x.significand); i++ {
+		if x.significand[i] != 0 {
 			break
 		}
 	}
-	r.significand = r.significand[i:]
-	r.exponent -= i
-	for i := len(r.significand) - 1; i >= 0; i-- {
-		if r.significand[i] != 0 {
+	x.significand = x.significand[i:]
+	x.exponent -= i
+	for i := len(x.significand) - 1; i >= 0; i-- {
+		if x.significand[i] != 0 {
 			break
 		}
-		r.significand = r.significand[:i]
+		x.significand = x.significand[:i]
 	}
 }
 
 // Round the value to the set precision and rounding mode, if necessary.
-func (r *Real) round() {
-	r.validate()
-	r.roundTo(r.precision)
+func (x *Real) round() {
+	x.validate()
+	x.roundTo(x.precision)
 }
 
 // Round the value to the given precision and rounding mode.
-func (r *Real) roundTo(p uint) {
-	defer r.trim()
+func (x *Real) roundTo(p uint) {
+	defer x.trim()
 
-	if uint(len(r.significand)) <= p {
+	if uint(len(x.significand)) <= p {
 		// number is exact, no rounding needed.
 		return
 	}
 
-	for i := len(r.significand) - 1; i >= int(p); i-- {
-		d := r.significand[i]
+	for i := len(x.significand) - 1; i >= int(p); i-- {
+		d := x.significand[i]
 		switch {
 		case d < 5:
 			// round down
 		case d > 5:
 			// round up
 			if i == 0 {
-				r.significand[0] = 1
-				r.exponent++
+				x.significand[0] = 1
+				x.exponent++
 				return
 			} else {
-				r.significand[i-1]++
+				x.significand[i-1]++
 			}
 		case d == 5:
 			// round to nearest even
-			if r.significand[i-1]%2 != 0 {
+			if x.significand[i-1]%2 != 0 {
 				if i == 0 {
-					r.significand[0] = 1
-					r.exponent++
+					x.significand[0] = 1
+					x.exponent++
 					return
 				} else {
-					r.significand[i-1]++
+					x.significand[i-1]++
 				}
 			}
 		}
-		r.significand[i] = 0
+		x.significand[i] = 0
 	}
 
 	// now unwind to the left to make sure we don't have any lingering carry
 	for i := int(p) - 1; i >= 0; i-- {
-		if r.significand[i] < 10 {
+		if x.significand[i] < 10 {
 			break
 		}
-		r.significand[i] -= 10
+		x.significand[i] -= 10
 
 		if i == 0 {
 			// pad
-			r.significand = append([]byte{1}, r.significand...)
+			x.significand = append([]byte{1}, x.significand...)
 			break
 		}
-		r.significand[i-1]++
+		x.significand[i-1]++
 	}
 }
 
@@ -339,8 +343,9 @@ func abs(x int) int {
 	return x
 }
 
-func (r *Real) IsZero() bool {
-	if len(r.significand) == 0 {
+// Returns true if x == 0.
+func (x *Real) IsZero() bool {
+	if len(x.significand) == 0 {
 		return true
 	}
 	return false

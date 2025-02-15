@@ -1,5 +1,10 @@
+// Copyright 2024 David Fritz. All rights reserved.
+// This software may be modified and distributed under the terms of the BSD
+// 2-clause license. See the LICENSE file for details.
+
 package real
 
+// Return the power of y and base x (x^y).
 func (x *Real) Pow(y *Real) *Real {
 	x.validate()
 	// x^y == e^(y*ln(x))
@@ -31,6 +36,7 @@ func (x *Real) ipow(y int) *Real {
 	}
 }
 
+// Return the square root of x.
 func (x *Real) Sqrt() *Real {
 	x.validate()
 	half := initFrom(x)

@@ -1,3 +1,7 @@
+// Copyright 2024 David Fritz. All rights reserved.
+// This software may be modified and distributed under the terms of the BSD
+// 2-clause license. See the LICENSE file for details.
+
 package real
 
 import (
@@ -10,6 +14,7 @@ const MaxLnIterations = 10
 // OEIS A002392 ln(10)
 var ln10digits = []byte{2, 3, 0, 2, 5, 8, 5, 0, 9, 2, 9, 9, 4, 0, 4, 5, 6, 8, 4, 0, 1, 7, 9, 9, 1, 4, 5, 4, 6, 8, 4, 3, 6, 4, 2, 0, 7, 6, 0, 1, 1, 0, 1, 4, 8, 8, 6, 2, 8, 7, 7, 2, 9, 7, 6, 0, 3, 3, 3, 2, 7, 9, 0, 0, 9, 6, 7, 5, 7, 2, 6, 0, 9, 6, 7, 7, 3, 5, 2, 4, 8, 0, 2, 3, 5, 9, 9}
 
+// Return the natural log of x.
 func (x *Real) Ln() *Real {
 	x2 := x.Copy()
 	x2.SetPrecision(2 + x.precision)
