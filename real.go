@@ -6,6 +6,7 @@ package real
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 )
 
@@ -18,8 +19,9 @@ type Real struct {
 }
 
 const (
-	DefaultPrecision        = 34 // The default precision for a real number. Expressed in decimal digits.
-	internalPrecisionBuffer = 10
+	DefaultPrecision               = 34 // The default precision for a real number. Expressed in decimal digits.
+	internalPrecisionBuffer        = 10
+	float64MinimumDecimalPrecision = 15 // minimum number of correct decimal digits in a float64
 )
 
 // Copy returns a deep copy of the real value.
@@ -350,4 +352,11 @@ func (x *Real) IsZero() bool {
 		return true
 	}
 	return false
+}
+
+// Returns the remaining number of iterations required given the known digits
+// and given precision. Assumes quadratic convergence.
+func estimateConvergence(known, precision uint) int {
+	iterations := math.Ceil(math.Log2(float64(precision)) - math.Log2(float64(known)))
+	return int(iterations)
 }

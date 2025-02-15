@@ -36,7 +36,7 @@ func (x *Real) reciprocal() *Real {
 	two := initFrom(x)
 	two.SetInt64(2)
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < estimateConvergence(float64MinimumDecimalPrecision, x.precision); i++ {
 		zn := z.mul(two.Sub(xscaled.mul(z)))
 		z = zn
 	}

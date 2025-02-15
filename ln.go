@@ -9,8 +9,6 @@ import (
 	"strconv"
 )
 
-const MaxLnIterations = 10
-
 // Return the natural log of x.
 func (x *Real) Ln() *Real {
 	if x.Compare(NewInt64(1)) == 0 {
@@ -44,24 +42,15 @@ func (x *Real) ln() *Real {
 	two := initFrom(x)
 	two.SetInt64(2)
 
-	//	var converged bool
-	for i := 0; i < 10; i++ {
+	for i := 0; i < estimateConvergence(float64MinimumDecimalPrecision, x.precision); i++ {
 		ez := z.exp()
 		n := xscaled.Sub(ez)
 		d := xscaled.Add(ez)
 		q := n.div(d)
 		q2 := two.mul(q)
 		znext := z.Add(q2)
-		//		if znext.Compare(z) == 0 {
-		//			z = znext
-		//			converged = true
-		//			break
-		//		}
 		z = znext
 	}
-	//	if !converged {
-	//		panic(fmt.Sprintf("failed to converge ln(%v)", x))
-	//	}
 
 	// exponent part
 	if x.exponent != 0 {
