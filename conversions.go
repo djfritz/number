@@ -7,6 +7,7 @@ package real
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 )
 
 const (
@@ -133,4 +134,31 @@ func (x *Real) Integer() *Real {
 		z.significand = z.significand[:z.exponent+1]
 	}
 	return z
+}
+
+func (x *Real) Uint64() (uint64, bool) {
+	s := fmt.Sprintf("%d", x)
+	u, err := strconv.ParseUint(s, 10, 64)
+	if err != nil {
+		return 0, false
+	}
+	return u, true
+}
+
+func (x *Real) Int64() (int64, bool) {
+	s := fmt.Sprintf("%d", x)
+	i, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return 0, false
+	}
+	return i, true
+}
+
+func (x *Real) Float64() (float64, bool) {
+	s := fmt.Sprintf("%e", x)
+	f, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return 0, false
+	}
+	return f, true
 }

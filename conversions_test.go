@@ -97,3 +97,63 @@ func TestFormatterV4(t *testing.T) {
 		t.Fatal("invalid format", fmt.Sprintf("%v", x))
 	}
 }
+
+func TestUint641(t *testing.T) {
+	x := NewInt64(1234)
+	x.exponent = 10
+
+	u, ok := x.Uint64()
+	if !ok || u != 12340000000 {
+		t.Fatal("invalid cast", u, ok)
+	}
+}
+
+func TestUint642(t *testing.T) {
+	x := NewInt64(1234)
+	x.exponent = -10
+
+	u, ok := x.Uint64()
+	if !ok || u != 0 {
+		t.Fatal("invalid cast", u, ok)
+	}
+}
+
+func TestInt641(t *testing.T) {
+	x := NewInt64(-1234)
+	x.exponent = 10
+
+	u, ok := x.Int64()
+	if !ok || u != -12340000000 {
+		t.Fatal("invalid cast", u, ok)
+	}
+}
+
+func TestInt642(t *testing.T) {
+	x := NewInt64(-1234)
+	x.exponent = -10
+
+	u, ok := x.Int64()
+	if !ok || u != 0 {
+		t.Fatal("invalid cast", u, ok)
+	}
+}
+
+func TestFloat641(t *testing.T) {
+	x := NewInt64(-1234)
+	x.exponent = 10
+
+	u, ok := x.Float64()
+	if !ok || u != -1.234e+10 {
+		t.Fatal("invalid cast", u, ok)
+	}
+}
+
+func TestFloat642(t *testing.T) {
+	x := NewInt64(-1234)
+	x.exponent = -10
+
+	u, ok := x.Float64()
+	if !ok || u != -1.234e-10 {
+		t.Fatal("invalid cast", u, ok)
+	}
+}
