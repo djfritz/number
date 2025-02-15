@@ -133,16 +133,6 @@ func (x *Real) SetFloat64(y float64) {
 	x.significand = []byte{}
 	x.negative = false
 
-	// TODO: forms
-	//	if math.IsInf(x, 1) {
-	//		r.form = INF
-	//		return
-	//	} else if math.IsInf(x, -1) {
-	//		r.form = NINF
-	//		return
-	//	} else if math.IsNaN(x) {
-	//		r.form = NAN
-	//		return
 	if y == 0 {
 		return
 	}
@@ -175,59 +165,6 @@ func (x *Real) SetFloat64(y float64) {
 	}
 	x.exponent = exp
 	x.round()
-}
-
-// Return the string form of the real number in scientific notation.
-func (x *Real) String() string {
-	var s string
-	if x.negative {
-		s = "-"
-	}
-	if len(x.significand) == 0 {
-		s += "0"
-		return s
-	}
-	s += fmt.Sprintf("%c", x.significand[0]+0x30)
-
-	if len(x.significand) > 1 {
-		s += "."
-
-		for _, v := range x.significand[1:] {
-			s += fmt.Sprintf("%c", v+0x30)
-		}
-	}
-	s += fmt.Sprintf("e%v", x.exponent)
-	return s
-}
-
-// Return the string form of the real number in ??? notation.
-func (x *Real) StringRegular() string {
-	var s string
-	if x.negative {
-		s = "-"
-	}
-	if x.exponent < 0 {
-		s += "0."
-		for i := 0; i < (x.exponent*-1)-1; i++ {
-			s += "0"
-		}
-		for _, v := range x.significand {
-			s += fmt.Sprintf("%c", v+0x30)
-		}
-	} else {
-		for i, v := range x.significand {
-			s += fmt.Sprintf("%c", v+0x30)
-			if i == x.exponent && i != len(x.significand)-1 {
-				s += "."
-			}
-		}
-		if x.exponent > len(x.significand)-1 {
-			for i := 0; i < x.exponent-(len(x.significand)-1); i++ {
-				s += "0"
-			}
-		}
-	}
-	return s
 }
 
 // Trim removes leading and trailing zeros from a normalized value.
@@ -308,17 +245,6 @@ func (x *Real) roundTo(p uint) {
 	}
 }
 
-// Return the integer part of a real number.
-func (x *Real) Integer() *Real {
-	z := x.Copy()
-	if z.exponent < 0 {
-		z.SetUint64(0)
-	} else if z.exponent < len(x.significand)-1 {
-		z.significand = z.significand[:z.exponent+1]
-	}
-	return z
-}
-
 func (x *Real) validate() {
 	if x.precision == 0 {
 		x.precision = DefaultPrecision
@@ -352,6 +278,14 @@ func (x *Real) IsZero() bool {
 		return true
 	}
 	return false
+}
+
+// Returns true if x has no fractional part.
+func (x *Real) IsInteger() bool {
+	if x.exponent < len(x.significand)-1 {
+		return false
+	}
+	return true
 }
 
 // Returns the remaining number of iterations required given the known digits
