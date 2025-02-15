@@ -92,6 +92,12 @@ func NewFloat64(x float64) *Real {
 	return r
 }
 
+// Returns the assigned precision of the number.
+func (x *Real) Precision() uint {
+	x.validate()
+	return x.precision
+}
+
 // Set the precision of the given number and round if necessary.
 func (x *Real) SetPrecision(y uint) {
 	x.precision = y
