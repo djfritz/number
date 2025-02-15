@@ -1,3 +1,3 @@
-module github.com/djfritz/real
+module github.com/djfritz/realnumber
 
 go 1.24.0
