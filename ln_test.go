@@ -4,7 +4,9 @@
 
 package real
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestLn1(t *testing.T) {
 	x := NewUint64(5)
