@@ -69,3 +69,15 @@ func TestMul6(t *testing.T) {
 		t.Fatal("invalid mul", z)
 	}
 }
+
+func BenchmarkMul(b *testing.B) {
+	x := new(Real)
+	y := new(Real)
+	x.significand = []byte{9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9}
+	y.significand = []byte{9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9}
+	x.validate()
+	y.validate()
+	for b.Loop() {
+		x.Mul(y)
+	}
+}

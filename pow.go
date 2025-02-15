@@ -7,10 +7,20 @@ package real
 // Return the power of y and base x (x^y).
 func (x *Real) Pow(y *Real) *Real {
 	x.validate()
+	y.validate()
+
+	p := umax(x.precision, y.precision)
+
 	// x^y == e^(y*ln(x))
-	a := x.Ln()
-	b := y.Mul(a)
-	return b.Exp()
+	x2 := x.Copy()
+	x2.SetPrecision(internalPrecisionBuffer + p)
+	y2 := y.Copy()
+	y2.SetPrecision(internalPrecisionBuffer + p)
+
+	z := y2.mul(x2.ln()).exp()
+	z.SetPrecision(p)
+
+	return z
 }
 
 func (x *Real) ipow(y int) *Real {
@@ -39,8 +49,14 @@ func (x *Real) ipow(y int) *Real {
 // Return the square root of x.
 func (x *Real) Sqrt() *Real {
 	x.validate()
-	half := initFrom(x)
+
+	x2 := x.Copy()
+	x2.SetPrecision(internalPrecisionBuffer + x.precision)
+
+	half := initFrom(x2)
 	half.SetUint64(5)
 	half.exponent = -1
-	return x.Pow(half)
+	z := x2.Pow(half)
+	z.SetPrecision(x.precision)
+	return z
 }

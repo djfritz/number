@@ -9,9 +9,9 @@ func (x *Real) Mul(y *Real) *Real {
 	x.validate()
 	y.validate()
 	x2 := x.Copy()
-	x2.SetPrecision(2 + x.precision)
+	x2.SetPrecision(internalPrecisionBuffer + x.precision)
 	y2 := y.Copy()
-	y2.SetPrecision(2 + y.precision)
+	y2.SetPrecision(internalPrecisionBuffer + y.precision)
 	z := x2.mul(y2)
 	z.SetPrecision(x.precision)
 	return z

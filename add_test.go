@@ -4,7 +4,9 @@
 
 package real
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestAdd1(t *testing.T) {
 	x := NewInt64(10)
@@ -28,14 +30,12 @@ func TestAdd2(t *testing.T) {
 
 func TestAdd3(t *testing.T) {
 	x := NewInt64(100)
-	y := NewFloat64(1.234)
+	y := NewInt64(1234)
+	y.exponent = 0
 
 	z := x.Add(y)
-	z.SetPrecision(6)
-	expected := NewFloat64(101.234)
-	expected.SetPrecision(6)
-	if z.Compare(expected) != 0 {
-		t.Fatal("invalid add", z, expected)
+	if z.String() != "1.01234e2" {
+		t.Fatal("invalid add", z)
 	}
 }
 
@@ -77,5 +77,17 @@ func TestSub3(t *testing.T) {
 	z := x.Sub(y)
 	if z.String() != "5e-1" {
 		t.Fatal("invalid sub", z)
+	}
+}
+
+func BenchmarkAdd(b *testing.B) {
+	x := new(Real)
+	y := new(Real)
+	x.significand = []byte{9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9}
+	y.significand = []byte{9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9}
+	x.validate()
+	y.validate()
+	for b.Loop() {
+		x.Add(y)
 	}
 }

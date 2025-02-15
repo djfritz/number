@@ -51,3 +51,12 @@ func TestExp5(t *testing.T) {
 		t.Fatal("invalid exp", z)
 	}
 }
+
+func BenchmarkExp(b *testing.B) {
+	x := new(Real)
+	x.significand = []byte{9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9}
+	x.validate()
+	for b.Loop() {
+		x.Exp()
+	}
+}

@@ -18,7 +18,8 @@ type Real struct {
 }
 
 const (
-	DefaultPrecision = 34 // The default precision for a real number. Expressed in decimal digits.
+	DefaultPrecision        = 34 // The default precision for a real number. Expressed in decimal digits.
+	internalPrecisionBuffer = 10
 )
 
 // Copy returns a deep copy of the real value.
@@ -90,15 +91,15 @@ func NewFloat64(x float64) *Real {
 }
 
 // Set the precision of the given number and round if necessary.
-func (x *Real) SetPrecision(x uint) {
-	x.precision = x
-	r.round()
+func (x *Real) SetPrecision(y uint) {
+	x.precision = y
+	x.round()
 }
 
 // Set a real number to the given signed int64. Rounding mode and precision are
 // left unchanged. If precision is lower than the given value, rounding occurs.
 func (x *Real) SetInt64(y int64) {
-	if x < 0 {
+	if y < 0 {
 		x.SetUint64(uint64((^y) + 1))
 		x.negative = true
 	} else {

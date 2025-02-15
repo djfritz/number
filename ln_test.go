@@ -42,3 +42,12 @@ func TestLn4(t *testing.T) {
 		t.Fatal("invalid ln", z)
 	}
 }
+
+func BenchmarkLn(b *testing.B) {
+	x := new(Real)
+	x.significand = []byte{9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9}
+	x.validate()
+	for b.Loop() {
+		x.Ln()
+	}
+}
