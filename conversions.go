@@ -28,10 +28,9 @@ func (x *Real) String() string {
 
 func (x *Real) Format(s fmt.State, verb rune) {
 	printable := x.Copy()
-	if p, ok := s.Precision(); ok {
-		printable.SetPrecision(uint(p))
-	} else {
-		printable.SetPrecision(defaultPrintPrecision)
+	p, ok := s.Precision()
+	if !ok {
+		p = defaultPrintPrecision
 	}
 
 	var o bytes.Buffer
@@ -41,6 +40,8 @@ func (x *Real) Format(s fmt.State, verb rune) {
 
 	switch verb {
 	case 'd':
+		// don't change the precision -- if they want a giant integer and we have it...
+
 		// decimal -- rounds to the precision of digits left of the decimal place
 		if printable.exponent < 0 {
 			printable.SetUint64(0)
@@ -59,6 +60,8 @@ func (x *Real) Format(s fmt.State, verb rune) {
 			}
 		}
 	case 'e':
+		printable.SetPrecision(uint(p))
+
 		// scientific notation
 		if len(printable.significand) == 0 {
 			o.WriteString("0")
@@ -75,6 +78,8 @@ func (x *Real) Format(s fmt.State, verb rune) {
 			o.WriteString(fmt.Sprintf("e%v", printable.exponent))
 		}
 	case 'f':
+		printable.SetPrecision(uint(p))
+
 		// floating point notation
 		if len(printable.significand) == 0 {
 			o.WriteString("0.0")
@@ -116,13 +121,15 @@ func (x *Real) Format(s fmt.State, verb rune) {
 		// attempt a natural notation based on the value
 		if abs(printable.exponent)+len(printable.significand) > sensibleSize {
 			// scientific notation
-			o.WriteString(fmt.Sprintf("%e", printable))
+			printable.SetPrecision(uint(p))
+			o.WriteString(fmt.Sprintf("%.*e", printable.precision, printable))
 		} else if printable.IsInteger() {
 			// integer
-			o.WriteString(fmt.Sprintf("%d", printable))
+			o.WriteString(fmt.Sprintf("%.*d", printable.precision, printable))
 		} else {
 			// floating point
-			o.WriteString(fmt.Sprintf("%f", printable))
+			printable.SetPrecision(uint(p))
+			o.WriteString(fmt.Sprintf("%.*f", printable.precision, printable))
 		}
 	}
 
