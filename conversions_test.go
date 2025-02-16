@@ -98,6 +98,22 @@ func TestFormatterV4(t *testing.T) {
 	}
 }
 
+func TestFormatterV5(t *testing.T) {
+	x := NewInt64(0)
+
+	if fmt.Sprintf("%v", x) != "0" {
+		t.Fatal("invalid format", fmt.Sprintf("%v", x))
+	}
+}
+
+func TestFormatterV6(t *testing.T) {
+	x := NewInt64(-1)
+
+	if fmt.Sprintf("%v", x) != "-1" {
+		t.Fatal("invalid format", fmt.Sprintf("%v", x))
+	}
+}
+
 func TestUint641(t *testing.T) {
 	x := NewInt64(1234)
 	x.exponent = 10

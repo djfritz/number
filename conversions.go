@@ -53,10 +53,10 @@ func (x *Real) Format(s fmt.State, verb rune) {
 			for _, v := range printable.significand {
 				o.WriteString(fmt.Sprintf("%c", v+asciiOffset))
 			}
-		}
-		trailing := printable.exponent - len(printable.significand) + 1
-		for i := 0; i < trailing; i++ {
-			o.WriteString("0")
+			trailing := printable.exponent - len(printable.significand) + 1
+			for i := 0; i < trailing; i++ {
+				o.WriteString("0")
+			}
 		}
 	case 'e':
 		// scientific notation
@@ -112,6 +112,7 @@ func (x *Real) Format(s fmt.State, verb rune) {
 			}
 		}
 	case 'v':
+		o.Reset()
 		// attempt a natural notation based on the value
 		if abs(printable.exponent)-len(printable.significand) > sensibleSize {
 			// scientific notation
