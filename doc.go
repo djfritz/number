@@ -3,11 +3,13 @@
 // 2-clause license. See the LICENSE file for details.
 
 /*
-Package realnumber implements arbitrary precision decimal floating point numbers and
-associated arithmetic. Unlike binary floating point numbers, package real
+Package number implements arbitrary precision decimal floating point numbers and
+associated arithmetic. Unlike binary floating point numbers, package number
 stores decimal digits of the significand as decimal values (stored as a
 []byte). This means that decimal representations can be stored exactly (unlike
 many numbers in binary floating point).
+
+Currently only real numbers ℝ are implemented.
 
 A zero value for a Real represents the number 0, and new values can be used in
 this way:
@@ -18,4 +20,4 @@ Unless specified, real values use the default rounding mode and precision.
 
 Arithmetic operations do not modify their operands.
 */
-package realnumber
+package number
