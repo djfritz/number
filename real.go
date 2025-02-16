@@ -300,3 +300,14 @@ func estimateConvergence(known, precision uint) int {
 	iterations := math.Ceil(math.Log2(float64(precision)) - math.Log2(float64(known)))
 	return int(iterations)
 }
+
+func (x *Real) Floor() *Real {
+	return x.Integer()
+}
+
+func (x *Real) Ceiling() *Real {
+	if x.IsInteger() {
+		return x.Copy()
+	}
+	return x.Integer().Add(NewInt64(1))
+}

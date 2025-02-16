@@ -21,3 +21,13 @@ func (x *Real) div(y *Real) *Real {
 	yr := y.reciprocal()
 	return x.mul(yr)
 }
+
+// Return the modulus x%y. If either x or y are not integers, they will be
+// truncated before the operation.
+func (x *Real) Mod(y *Real) *Real {
+	xi := x.Integer()
+	yi := y.Integer()
+
+	m := xi.Sub(xi.Div(yi).Floor().Mul(yi))
+	return m
+}

@@ -52,3 +52,25 @@ func BenchmarkDiv(b *testing.B) {
 		x.Div(y)
 	}
 }
+
+func TestMod1(t *testing.T) {
+	x := NewInt64(23)
+	y := NewInt64(2)
+
+	m := x.Mod(y)
+
+	if m.String() != "1e0" {
+		t.Fatal("invalid mod", m)
+	}
+}
+
+func TestMod2(t *testing.T) {
+	x := NewInt64(23)
+	y := NewInt64(8)
+
+	m := x.Mod(y)
+
+	if m.String() != "7e0" {
+		t.Fatal("invalid mod", m)
+	}
+}

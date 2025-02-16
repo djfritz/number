@@ -300,3 +300,37 @@ func TestInteger4(t *testing.T) {
 		t.Fatal("invalid significand", z.significand)
 	}
 }
+
+func TestFloor1(t *testing.T) {
+	x := NewInt64(1234)
+	x.exponent = 0
+	z := x.Floor()
+	if z.String() != "1e0" {
+		t.Fatal("invalid floor", z)
+	}
+}
+
+func TestFloor2(t *testing.T) {
+	x := NewInt64(1)
+	z := x.Floor()
+	if z.String() != "1e0" {
+		t.Fatal("invalid floor", z)
+	}
+}
+
+func TestCeiling1(t *testing.T) {
+	x := NewInt64(1234)
+	x.exponent = 0
+	z := x.Ceiling()
+	if z.String() != "2e0" {
+		t.Fatal("invalid floor", z)
+	}
+}
+
+func TestCeiling2(t *testing.T) {
+	x := NewInt64(1)
+	z := x.Ceiling()
+	if z.String() != "1e0" {
+		t.Fatal("invalid floor", z)
+	}
+}
