@@ -114,7 +114,7 @@ func (x *Real) Format(s fmt.State, verb rune) {
 	case 'v':
 		o.Reset()
 		// attempt a natural notation based on the value
-		if abs(printable.exponent)-len(printable.significand) > sensibleSize {
+		if abs(printable.exponent)+len(printable.significand) > sensibleSize {
 			// scientific notation
 			o.WriteString(fmt.Sprintf("%e", printable))
 		} else if printable.IsInteger() {
