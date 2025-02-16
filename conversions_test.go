@@ -157,3 +157,63 @@ func TestFloat642(t *testing.T) {
 		t.Fatal("invalid cast", u, ok)
 	}
 }
+
+func TestParseReal1(t *testing.T) {
+	s := "1.234"
+	x, err := ParseReal(s, DefaultPrecision)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if x.String() != "1.234e0" {
+		t.Fatal("invalid parse", x)
+	}
+}
+
+func TestParseReal2(t *testing.T) {
+	s := "1.234e-5"
+	x, err := ParseReal(s, DefaultPrecision)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if x.String() != "1.234e-5" {
+		t.Fatal("invalid parse", x)
+	}
+}
+
+func TestParseReal3(t *testing.T) {
+	s := "-1.234e50"
+	x, err := ParseReal(s, DefaultPrecision)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if x.String() != "-1.234e50" {
+		t.Fatal("invalid parse", x)
+	}
+}
+
+func TestParseReal4(t *testing.T) {
+	s := "9.2342234234234252345232734672364723472342342342523423432456"
+	x, err := ParseReal(s, DefaultPrecision)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if x.String() != "9.234223423423425234523273467236472e0" {
+		t.Fatal("invalid parse", x)
+	}
+}
+
+func TestParseReal5(t *testing.T) {
+	s := "9.2345534234234252345232734672364723472342342342523423432456"
+	x, err := ParseReal(s, 5)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if x.String() != "9.2346e0" {
+		t.Fatal("invalid parse", x)
+	}
+}

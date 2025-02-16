@@ -6,6 +6,7 @@ package number
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"strconv"
 )
@@ -14,6 +15,10 @@ const (
 	asciiOffset           = 0x30 // offset to add to bytes to get their ASCII representation
 	sensibleSize          = 40   // sensible number of digits to print before engaging scientific notation for the %v verb
 	defaultPrintPrecision = DefaultPrecision
+)
+
+var (
+	ErrInvalidCharacter = errors.New("invalid character")
 )
 
 // Return the string form of the real number in scientific notation.
@@ -161,4 +166,59 @@ func (x *Real) Float64() (float64, bool) {
 		return 0, false
 	}
 	return f, true
+}
+
+// ParseReal converts a string s to a Real with the given precision p.
+//
+// Input beyond the given precision is ignored but not considered an error.
+//
+// Input can be as a fixed precision number or in scientific notation, using a
+// lower case 'e' for the exponent.
+func ParseReal(s string, p uint) (*Real, error) {
+	x := new(Real)
+
+	// negative sign
+	if len(s) > 0 && s[0] == '-' {
+		x.negative = true
+		s = s[1:]
+	}
+
+	// significand
+	var radixSet bool
+	for len(s) > 0 {
+		if s[0] == '.' {
+			radixSet = true
+			x.exponent = len(x.significand) - 1
+		} else if s[0] >= '0' && s[0] <= '9' {
+			x.significand = append(x.significand, byte(s[0])-asciiOffset)
+		} else if s[0] == 'e' {
+			// exponent
+			if len(x.significand) == 0 {
+				return nil, ErrInvalidCharacter
+			}
+			break
+		} else {
+			return nil, ErrInvalidCharacter
+		}
+		s = s[1:]
+	}
+	if !radixSet {
+		x.exponent = len(x.significand) - 1
+	}
+
+	// optional exponent
+	if len(s) > 0 {
+		if s[0] != 'e' {
+			return nil, ErrInvalidCharacter
+		}
+		s = s[1:]
+		exp, err := strconv.ParseInt(s, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		x.exponent += int(exp)
+	}
+
+	x.SetPrecision(p)
+	return x, nil
 }
