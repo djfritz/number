@@ -20,6 +20,17 @@ func TestFormatterDecimalLargePrecision(t *testing.T) {
 	}
 }
 
+func TestFormatterDecimalLargePrecision2(t *testing.T) {
+	x := NewUint64(100)
+	x.SetPrecision(100)
+	x = x.Factorial()
+	x.exponent = 0
+
+	if fmt.Sprintf("%.100v", x) != "9.332621544394415268169923885626670049071596826438162146859296389521759999322991560894146397615651822" {
+		t.Fatal("invalid format", fmt.Sprintf("%.100v", x))
+	}
+}
+
 func TestFormatterDecimal1(t *testing.T) {
 	x := NewInt64(1234)
 	x.exponent = 1 // 12.34
@@ -242,5 +253,13 @@ func TestParseReal5(t *testing.T) {
 
 	if x.String() != "9.2346e0" {
 		t.Fatal("invalid parse", x)
+	}
+}
+
+func TestParseReal6(t *testing.T) {
+	s := "-"
+	_, err := ParseReal(s, 5)
+	if err == nil {
+		t.Fatal("should have generated error")
 	}
 }

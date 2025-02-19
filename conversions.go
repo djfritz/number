@@ -193,6 +193,7 @@ func ParseReal(s string, p uint) (*Real, error) {
 
 	// significand
 	var radixSet bool
+	var oneDigit bool
 	for len(s) > 0 {
 		if s[0] == '.' {
 			radixSet = true
@@ -209,7 +210,13 @@ func ParseReal(s string, p uint) (*Real, error) {
 			return nil, ErrInvalidCharacter
 		}
 		s = s[1:]
+		oneDigit = true
 	}
+
+	if !oneDigit {
+		return nil, ErrInvalidCharacter
+	}
+
 	if !radixSet {
 		x.exponent = len(x.significand) - 1
 	}
