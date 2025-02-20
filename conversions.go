@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 )
 
@@ -36,6 +37,16 @@ func (x *Real) Format(s fmt.State, verb rune) {
 	var o bytes.Buffer
 	if printable.negative {
 		o.WriteString("-")
+	}
+
+	if x.form == FormInf {
+		o.WriteString("∞")
+		s.Write(o.Bytes())
+		return
+	} else if x.form == FormNaN {
+		o.WriteString("NaN")
+		s.Write(o.Bytes())
+		return
 	}
 
 	switch verb {
@@ -141,6 +152,13 @@ func (x *Real) Format(s fmt.State, verb rune) {
 // Return the integer part of a real number.
 func (x *Real) Integer() *Real {
 	z := x.Copy()
+
+	if z.IsInf() {
+		return z
+	} else if z.IsNaN() {
+		return z
+	}
+
 	if z.exponent < 0 {
 		z.SetUint64(0)
 	} else if z.exponent < len(x.significand)-1 {
@@ -150,6 +168,10 @@ func (x *Real) Integer() *Real {
 }
 
 func (x *Real) Uint64() (uint64, bool) {
+	if x.IsInf() || x.IsNaN() {
+		return 0, false
+	}
+
 	s := fmt.Sprintf("%d", x)
 	u, err := strconv.ParseUint(s, 10, 64)
 	if err != nil {
@@ -159,6 +181,10 @@ func (x *Real) Uint64() (uint64, bool) {
 }
 
 func (x *Real) Int64() (int64, bool) {
+	if x.IsInf() || x.IsNaN() {
+		return 0, false
+	}
+
 	s := fmt.Sprintf("%d", x)
 	i, err := strconv.ParseInt(s, 10, 64)
 	if err != nil {
@@ -168,6 +194,16 @@ func (x *Real) Int64() (int64, bool) {
 }
 
 func (x *Real) Float64() (float64, bool) {
+	if x.IsInf() {
+		sign := 1
+		if x.negative {
+			sign = -1
+		}
+		return math.Inf(sign), true
+	} else if x.IsNaN() {
+		return math.NaN(), true
+	}
+
 	s := fmt.Sprintf("%e", x)
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {

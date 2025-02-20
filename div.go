@@ -18,6 +18,26 @@ func (x *Real) Div(y *Real) *Real {
 }
 
 func (x *Real) div(y *Real) *Real {
+	z := initFrom2(x, y)
+	if x.IsInf() && y.IsInf() {
+		z.form = FormNaN
+		return z
+	} else if x.IsNaN() || y.IsNaN() {
+		z.form = FormNaN
+		return z
+	} else if x.IsInf() {
+		z.form = FormInf
+		z.negative = x.negative
+		return z
+	} else if y.IsInf() {
+		return z
+	} else if x.IsZero() {
+		return z
+	} else if y.IsZero() {
+		z.form = FormInf
+		return z
+	}
+
 	yr := y.reciprocal()
 	return x.mul(yr)
 }
@@ -25,6 +45,12 @@ func (x *Real) div(y *Real) *Real {
 // Return the modulus x%y. If either x or y are not integers, they will be
 // truncated before the operation.
 func (x *Real) Mod(y *Real) *Real {
+	if x.form != FormReal || y.form != FormReal {
+		z := initFrom(x)
+		z.form = FormNaN
+		return z
+	}
+
 	xi := x.Integer()
 	yi := y.Integer()
 

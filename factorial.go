@@ -8,6 +8,21 @@ package number
 // integer portion of x is used.
 func (x *Real) Factorial() *Real {
 	x.validate()
+
+	if x.IsInf() {
+		z := initFrom(x)
+		z.form = FormInf
+		return z
+	} else if x.IsNaN() {
+		z := initFrom(x)
+		z.form = FormNaN
+		return z
+	} else if x.negative {
+		z := initFrom(x)
+		z.form = FormNaN
+		return z
+	}
+
 	z := initFrom(x)
 	z.SetUint64(1)
 	if x.Compare(NewUint64(2)) == -1 {

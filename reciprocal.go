@@ -19,6 +19,20 @@ func (x *Real) Reciprocal() *Real {
 }
 
 func (x *Real) reciprocal() *Real {
+	if x.IsInf() {
+		z := initFrom(x)
+		return z
+	} else if x.IsNaN() {
+		z := initFrom(x)
+		z.form = FormNaN
+		return z
+	} else if x.IsZero() {
+		z := initFrom(x)
+		z.form = FormInf
+		z.negative = x.negative
+		return z
+	}
+
 	xscaled := x.Copy()
 	xscaled.exponent = 0
 

@@ -37,3 +37,32 @@ func TestReciprocal3(t *testing.T) {
 		t.Fatal("invalid reciprocal", z)
 	}
 }
+
+func TestReciprocalInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	z := x.Reciprocal()
+
+	if z.String() != "0" {
+		t.Fatal("invalid reciprocal", z)
+	}
+}
+
+func TestReciprocalNaN(t *testing.T) {
+	x := new(Real)
+	x.form = FormNaN
+	z := x.Reciprocal()
+
+	if z.String() != "NaN" {
+		t.Fatal("invalid reciprocal", z)
+	}
+}
+
+func TestReciprocalZero(t *testing.T) {
+	x := new(Real)
+	z := x.Reciprocal()
+
+	if z.String() != "∞" {
+		t.Fatal("invalid reciprocal", z)
+	}
+}

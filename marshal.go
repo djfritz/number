@@ -41,6 +41,10 @@ func (x *Real) GobEncode() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = enc.Encode(x.form)
+	if err != nil {
+		return nil, err
+	}
 
 	return w.Bytes(), nil
 
@@ -70,6 +74,10 @@ func (x *Real) GobDecode(b []byte) error {
 		return err
 	}
 	err = dec.Decode(&x.precision)
+	if err != nil {
+		return err
+	}
+	err = dec.Decode(&x.form)
 	if err != nil {
 		return err
 	}

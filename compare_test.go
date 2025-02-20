@@ -41,3 +41,67 @@ func TestCompare4(t *testing.T) {
 		t.Fatal("invalid compare")
 	}
 }
+
+func TestCompareInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	y := NewInt64(-5)
+
+	if x.Compare(y) != 1 {
+		t.Fatal("invalid compare")
+	}
+}
+
+func TestCompareInfSame(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	y := new(Real)
+	y.form = FormInf
+
+	if x.Compare(y) != 0 {
+		t.Fatal("invalid compare")
+	}
+}
+
+func TestCompareInfDifferent(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	y := new(Real)
+	y.form = FormInf
+	y.negative = true
+
+	if x.Compare(y) != 1 {
+		t.Fatal("invalid compare")
+	}
+}
+
+func TestCompareInfDifferent2(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	x.negative = true
+	y := new(Real)
+	y.form = FormInf
+
+	if x.Compare(y) != -1 {
+		t.Fatal("invalid compare")
+	}
+}
+
+func TestCompareNaN(t *testing.T) {
+	if attempt() {
+		t.Fatal("failed compare")
+	}
+}
+
+func attempt() bool {
+	x := new(Real)
+	x.form = FormNaN
+	y := new(Real)
+
+	defer func() {
+		recover()
+	}()
+
+	x.Compare(y)
+	return true
+}

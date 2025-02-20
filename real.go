@@ -16,7 +16,14 @@ type Real struct {
 	negative    bool   // true if the number is negative
 	exponent    int    // exponent
 	precision   uint   // maximum allowed precision of the significand in decimal digits
+	form        int
 }
+
+const (
+	FormReal = iota
+	FormNaN
+	FormInf
+)
 
 const (
 	DefaultPrecision               = 34 // The default precision for a real number. Expressed in decimal digits.
@@ -41,6 +48,7 @@ func (x *Real) CopyValue(y *Real) {
 	x.exponent = y.exponent
 	x.significand = make([]byte, len(y.significand))
 	copy(x.significand, y.significand)
+	x.form = y.form
 	x.round()
 }
 
@@ -140,6 +148,18 @@ func (x *Real) SetFloat64(y float64) {
 	x.negative = false
 
 	if y == 0 {
+		return
+	}
+
+	if math.IsNaN(y) {
+		x.form = FormNaN
+		return
+	} else if math.IsInf(y, -1) {
+		x.form = FormInf
+		x.negative = true
+		return
+	} else if math.IsInf(y, 1) {
+		x.form = FormInf
 		return
 	}
 
@@ -278,12 +298,28 @@ func abs(x int) int {
 	return x
 }
 
+func (x *Real) Abs() *Real {
+	z := x.Copy()
+	z.negative = false
+	return z
+}
+
 // Returns true if x == 0.
 func (x *Real) IsZero() bool {
-	if len(x.significand) == 0 {
+	if x.form == FormReal && len(x.significand) == 0 {
 		return true
 	}
 	return false
+}
+
+// Returns true if x is ±Inf
+func (x *Real) IsInf() bool {
+	return x.form == FormInf
+}
+
+// Returns true if x is NaN
+func (x *Real) IsNaN() bool {
+	return x.form == FormNaN
 }
 
 // Returns true if x has no fractional part.

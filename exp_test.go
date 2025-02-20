@@ -52,6 +52,46 @@ func TestExp5(t *testing.T) {
 	}
 }
 
+func TestExpInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+
+	z := x.Exp()
+	if z.String() != "∞" {
+		t.Fatal("invalid exp", z)
+	}
+}
+
+func TestExpNegInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	x.negative = true
+
+	z := x.Exp()
+	if z.String() != "0" {
+		t.Fatal("invalid exp", z)
+	}
+}
+
+func TestExpNaN(t *testing.T) {
+	x := new(Real)
+	x.form = FormNaN
+
+	z := x.Exp()
+	if z.String() != "NaN" {
+		t.Fatal("invalid exp", z)
+	}
+}
+
+func TestExp0(t *testing.T) {
+	x := new(Real)
+
+	z := x.Exp()
+	if z.String() != "1e0" {
+		t.Fatal("invalid exp", z)
+	}
+}
+
 func BenchmarkExp(b *testing.B) {
 	x := new(Real)
 	x.significand = []byte{9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9}

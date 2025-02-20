@@ -19,6 +19,24 @@ func (x *Real) Exp() *Real {
 }
 
 func (x *Real) exp() *Real {
+	if x.IsInf() {
+		if x.negative {
+			z := initFrom(x)
+			return z
+		}
+		z := initFrom(x)
+		z.form = FormInf
+		return z
+	} else if x.IsNaN() {
+		z := initFrom(x)
+		z.form = FormNaN
+		return z
+	} else if x.IsZero() {
+		z := initFrom(x)
+		z.SetUint64(1)
+		return z
+	}
+
 	// we decompose e^x using associativity to get x into a normalized
 	// (1<x<10) value and compute the power series from there. This adds
 	// multiplies, but helps with convergence for large values of x.

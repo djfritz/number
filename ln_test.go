@@ -45,6 +45,55 @@ func TestLn4(t *testing.T) {
 	}
 }
 
+func TestLnInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	z := x.Ln()
+
+	if z.String() != "∞" {
+		t.Fatal("invalid ln", z)
+	}
+}
+
+func TestLnNaN(t *testing.T) {
+	x := new(Real)
+	x.form = FormNaN
+	z := x.Ln()
+
+	if z.String() != "NaN" {
+		t.Fatal("invalid ln", z)
+	}
+}
+
+func TestLnNeg(t *testing.T) {
+	x := NewInt64(-1)
+	z := x.Ln()
+
+	if z.String() != "NaN" {
+		t.Fatal("invalid ln", z)
+	}
+}
+
+func TestLnZero(t *testing.T) {
+	x := new(Real)
+	z := x.Ln()
+
+	if z.String() != "-∞" {
+		t.Fatal("invalid ln", z)
+	}
+}
+
+func TestLnAllTheWayDown(t *testing.T) {
+	x := NewUint64(2)
+	z := x.Ln()
+	z = z.Ln()
+	z = z.Ln()
+
+	if z.String() != "NaN" {
+		t.Fatal("invalid ln", z)
+	}
+}
+
 func BenchmarkLn(b *testing.B) {
 	x := new(Real)
 	x.significand = []byte{9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9}

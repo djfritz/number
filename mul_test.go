@@ -70,6 +70,63 @@ func TestMul6(t *testing.T) {
 	}
 }
 
+func TestMulInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	y := NewInt64(4)
+
+	z := x.Mul(y)
+	if z.String() != "∞" {
+		t.Fatal("invalid mul", z)
+	}
+}
+
+func TestMulNegInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	x.negative = true
+	y := NewInt64(4)
+
+	z := x.Mul(y)
+	if z.String() != "-∞" {
+		t.Fatal("invalid mul", z)
+	}
+}
+
+func TestMulNegInfWithInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	x.negative = true
+	y := new(Real)
+	y.form = FormInf
+
+	z := x.Mul(y)
+	if z.String() != "NaN" {
+		t.Fatal("invalid mul", z)
+	}
+}
+
+func TestMulNaN(t *testing.T) {
+	x := new(Real)
+	x.form = FormNaN
+	y := NewUint64(0)
+
+	z := x.Mul(y)
+	if z.String() != "NaN" {
+		t.Fatal("invalid mul", z)
+	}
+}
+
+func TestMulZero(t *testing.T) {
+	x := NewUint64(1)
+	y := NewUint64(0)
+
+	z := x.Mul(y)
+	if z.String() != "0" {
+		t.Fatal("invalid mul", z)
+	}
+}
+
 func BenchmarkMul(b *testing.B) {
 	x := new(Real)
 	y := new(Real)

@@ -41,6 +41,87 @@ func TestDiv3(t *testing.T) {
 	}
 }
 
+func TestDivInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	y := NewInt64(-5)
+
+	z := x.Div(y)
+	if z.String() != "∞" {
+		t.Fatal("invalid div", z)
+	}
+}
+
+func TestDivNegInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	x.negative = true
+	y := NewInt64(-5)
+
+	z := x.Div(y)
+	if z.String() != "-∞" {
+		t.Fatal("invalid div", z)
+	}
+}
+
+func TestDivInf2(t *testing.T) {
+	y := new(Real)
+	y.form = FormInf
+	x := NewInt64(5)
+
+	z := x.Div(y)
+	if z.String() != "0" {
+		t.Fatal("invalid div", z)
+	}
+}
+
+func TestDivNegInf2(t *testing.T) {
+	y := new(Real)
+	y.form = FormInf
+	y.negative = true
+	x := NewInt64(5)
+
+	z := x.Div(y)
+	if z.String() != "0" {
+		t.Fatal("invalid div", z)
+	}
+}
+
+func TestDivBothInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	x.negative = true
+	y := new(Real)
+	y.form = FormInf
+	y.negative = false
+
+	z := x.Div(y)
+	if z.String() != "NaN" {
+		t.Fatal("invalid div", z)
+	}
+}
+
+func TestDivNaN(t *testing.T) {
+	x := new(Real)
+	x.form = FormNaN
+	y := NewUint64(1)
+
+	z := x.Div(y)
+	if z.String() != "NaN" {
+		t.Fatal("invalid div", z)
+	}
+}
+
+func TestDivZero(t *testing.T) {
+	x := NewUint64(1)
+	y := new(Real)
+
+	z := x.Div(y)
+	if z.String() != "∞" {
+		t.Fatal("invalid div", z)
+	}
+}
+
 func BenchmarkDiv(b *testing.B) {
 	x := new(Real)
 	y := new(Real)
@@ -71,6 +152,18 @@ func TestMod2(t *testing.T) {
 	m := x.Mod(y)
 
 	if m.String() != "7e0" {
+		t.Fatal("invalid mod", m)
+	}
+}
+
+func TestModInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	y := NewInt64(8)
+
+	m := x.Mod(y)
+
+	if m.String() != "NaN" {
 		t.Fatal("invalid mod", m)
 	}
 }

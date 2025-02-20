@@ -49,6 +49,54 @@ func TestAdd4(t *testing.T) {
 	}
 }
 
+func TestAddInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	y := NewInt64(-5)
+
+	z := x.Add(y)
+	if z.String() != "∞" {
+		t.Fatal("invalid add", z)
+	}
+}
+
+func TestAddNegInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	x.negative = true
+	y := NewInt64(-5)
+
+	z := x.Add(y)
+	if z.String() != "-∞" {
+		t.Fatal("invalid add", z)
+	}
+}
+
+func TestAddBothInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	x.negative = true
+	y := new(Real)
+	y.form = FormInf
+	y.negative = false
+
+	z := x.Add(y)
+	if z.String() != "NaN" {
+		t.Fatal("invalid add", z)
+	}
+}
+
+func TestAddNaN(t *testing.T) {
+	x := new(Real)
+	x.form = FormNaN
+	y := NewUint64(1)
+
+	z := x.Add(y)
+	if z.String() != "NaN" {
+		t.Fatal("invalid add", z)
+	}
+}
+
 func TestSub1(t *testing.T) {
 	x := NewInt64(-100)
 	y := NewInt64(-5)

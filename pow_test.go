@@ -35,6 +35,36 @@ func TestIpow3(t *testing.T) {
 	}
 }
 
+func TestIpowInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	z := x.ipow(8)
+
+	if z.String() != "∞" {
+		t.Fatal("invalid power", z)
+	}
+}
+
+func TestIpowNegInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	x.negative = true
+	z := x.ipow(8)
+
+	if z.String() != "∞" {
+		t.Fatal("invalid power", z)
+	}
+}
+
+func TestIpowZero(t *testing.T) {
+	x := new(Real)
+	z := x.ipow(8)
+
+	if z.String() != "0" {
+		t.Fatal("invalid power", z)
+	}
+}
+
 func TestPow1(t *testing.T) {
 	x := NewInt64(5)
 	y := NewInt64(8)
@@ -51,6 +81,106 @@ func TestPow2(t *testing.T) {
 	z := x.Pow(y)
 
 	if z.String() != "3e0" {
+		t.Fatal("invalid power", z)
+	}
+}
+
+func TestPowInfInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	y := new(Real)
+	y.form = FormInf
+	z := x.Pow(y)
+
+	if z.String() != "NaN" {
+		t.Fatal("invalid power", z)
+	}
+}
+
+func TestPowInfZero(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	y := new(Real)
+	z := x.Pow(y)
+
+	if z.String() != "1e0" {
+		t.Fatal("invalid power", z)
+	}
+}
+
+func TestPowInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	y := NewUint64(1)
+	z := x.Pow(y)
+
+	if z.String() != "∞" {
+		t.Fatal("invalid power", z)
+	}
+}
+
+func TestPowInfAExactly1(t *testing.T) {
+	x := NewUint64(1)
+	y := new(Real)
+	y.form = FormInf
+	z := x.Pow(y)
+
+	if z.String() != "NaN" {
+		t.Fatal("invalid power", z)
+	}
+}
+
+func TestPowInfA1(t *testing.T) {
+	x := NewUint64(5)
+	y := new(Real)
+	y.form = FormInf
+	z := x.Pow(y)
+
+	if z.String() != "∞" {
+		t.Fatal("invalid power", z)
+	}
+}
+
+func TestPowNegInfA1(t *testing.T) {
+	x := NewUint64(5)
+	y := new(Real)
+	y.form = FormInf
+	y.negative = true
+	z := x.Pow(y)
+
+	if z.String() != "0" {
+		t.Fatal("invalid power", z)
+	}
+}
+
+func TestPowInfA0(t *testing.T) {
+	x := NewFloat64(.5)
+	y := new(Real)
+	y.form = FormInf
+	z := x.Pow(y)
+
+	if z.String() != "0" {
+		t.Fatal("invalid power", z)
+	}
+}
+
+func TestPowInfANeg(t *testing.T) {
+	x := NewFloat64(-.5)
+	y := new(Real)
+	y.form = FormInf
+	z := x.Pow(y)
+
+	if z.String() != "NaN" {
+		t.Fatal("invalid power", z)
+	}
+}
+
+func TestPowZero(t *testing.T) {
+	x := new(Real)
+	y := NewUint64(1)
+	z := x.Pow(y)
+
+	if z.String() != "0" {
 		t.Fatal("invalid power", z)
 	}
 }
@@ -88,6 +218,46 @@ func TestSqrt4(t *testing.T) {
 	z := x.Sqrt()
 
 	if z.String() != "4.472135954999579392818347337462552e-2" {
+		t.Fatal("invalid sqrt", z)
+	}
+}
+
+func TestSqrtNeg1(t *testing.T) {
+	x := NewInt64(-1)
+	z := x.Sqrt()
+
+	if z.String() != "NaN" {
+		t.Fatal("invalid sqrt", z)
+	}
+}
+
+func TestSqrtInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	z := x.Sqrt()
+
+	if z.String() != "∞" {
+		t.Fatal("invalid sqrt", z)
+	}
+}
+
+func TestSqrtNegInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	x.negative = true
+	z := x.Sqrt()
+
+	if z.String() != "NaN" {
+		t.Fatal("invalid sqrt", z)
+	}
+}
+
+func TestSqrtNaN(t *testing.T) {
+	x := new(Real)
+	x.form = FormNaN
+	z := x.Sqrt()
+
+	if z.String() != "NaN" {
 		t.Fatal("invalid sqrt", z)
 	}
 }

@@ -19,6 +19,31 @@ func (x *Real) Mul(y *Real) *Real {
 
 func (x *Real) mul(y *Real) *Real {
 	z := initFrom2(x, y)
+
+	if x.IsInf() && y.IsInf() && x.negative == y.negative {
+		z.form = FormInf
+		return z
+	} else if x.IsInf() && y.IsInf() && x.negative != y.negative {
+		z.form = FormNaN
+		return z
+	} else if x.IsNaN() || y.IsNaN() {
+		z.form = FormNaN
+		return z
+	} else if (x.IsInf() && y.IsZero()) || (x.IsZero() && y.IsInf()) {
+		z.form = FormNaN
+		return z
+	} else if x.IsInf() {
+		z.form = FormInf
+		z.negative = x.negative != y.negative
+		return z
+	} else if y.IsInf() {
+		z.form = FormInf
+		z.negative = x.negative != y.negative
+		return z
+	} else if x.IsZero() || y.IsZero() {
+		return z
+	}
+
 	for i := len(x.significand) - 1; i >= 0; i-- {
 		p := make([]byte, len(y.significand)+1)
 		for j := len(y.significand) - 1; j >= 0; j-- {

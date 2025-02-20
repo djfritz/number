@@ -50,3 +50,22 @@ func TestFactorial5(t *testing.T) {
 		t.Fatal("invalid factorial", z)
 	}
 }
+
+func TestFactorialInf(t *testing.T) {
+	x := new(Real)
+	x.form = FormInf
+	z := x.Factorial()
+
+	if z.String() != "∞" {
+		t.Fatal("invalid factorial", z)
+	}
+}
+
+func TestFactorialNegative(t *testing.T) {
+	x := NewInt64(-1)
+	z := x.Factorial()
+
+	if z.String() != "NaN" {
+		t.Fatal("invalid factorial", z)
+	}
+}

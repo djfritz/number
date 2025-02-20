@@ -16,6 +16,22 @@ func (x *Real) Add(y *Real) *Real {
 
 	z := initFrom(x)
 
+	if x.IsInf() && y.IsInf() && x.negative != y.negative {
+		z.form = FormNaN
+		return z
+	} else if x.IsNaN() || y.IsNaN() {
+		z.form = FormNaN
+		return z
+	} else if x.IsInf() {
+		z.form = FormInf
+		z.negative = x.negative
+		return z
+	} else if y.IsInf() {
+		z.form = FormInf
+		z.negative = y.negative
+		return z
+	}
+
 	// The sum will have the precision of the larger of the two addends
 	z.precision = umax(x.precision, y.precision)
 

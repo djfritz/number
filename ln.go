@@ -11,10 +11,6 @@ import (
 
 // Return the natural log of x.
 func (x *Real) Ln() *Real {
-	if x.Compare(NewInt64(1)) == 0 {
-		z := initFrom(x)
-		return z
-	}
 	x2 := x.Copy()
 	x2.SetPrecision(internalPrecisionBuffer + x.precision)
 	z := x2.ln()
@@ -23,6 +19,28 @@ func (x *Real) Ln() *Real {
 }
 
 func (x *Real) ln() *Real {
+	if x.negative {
+		z := initFrom(x)
+		z.form = FormNaN
+		return z
+	} else if x.IsInf() {
+		z := initFrom(x)
+		z.form = FormInf
+		return z
+	} else if x.IsNaN() {
+		z := initFrom(x)
+		z.form = FormNaN
+		return z
+	} else if x.Compare(NewUint64(1)) == 0 {
+		z := initFrom(x)
+		return z
+	} else if x.IsZero() {
+		z := initFrom(x)
+		z.form = FormInf
+		z.negative = true
+		return z
+	}
+
 	// z1 = z0 * 2*((x-exp(z0))/(x+exp(z0)))
 
 	xscaled := x.Copy()
