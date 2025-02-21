@@ -35,39 +35,47 @@ func (x *Real) roundTo(p uint) {
 	case ModeDown:
 	case ModeZero:
 	}
+
+	x.significand = x.significand[:p]
 }
 
 func (x *Real) roundToNearestEven(p uint) {
-	var hasNonZero bool
-	for i := len(x.significand) - 1; i >= int(p); i-- {
-		d := x.significand[i]
-		switch {
-		case d < 5 && d > 0:
-			// we have something but we can't decide yet
-			hasNonZero = true
-		case d > 5 || (hasNonZero && d == 5):
-			// round up
-			if i == 0 {
+	d := x.significand[p]
+	switch {
+	case d < 5:
+		// round down
+	case d > 5:
+		// round up
+		if p == 0 {
+			x.significand[0] = 1
+			x.exponent++
+		} else {
+			x.significand[p-1]++
+		}
+	case d == 5:
+		// round up if any of remaining digits are non-zero
+		var nonzero bool
+		for i := int(p) + 1; i < len(x.significand); i++ {
+			if x.significand[i] != 0 {
+				nonzero = true
+				break
+			}
+		}
+		if nonzero {
+			if p == 0 {
 				x.significand[0] = 1
 				x.exponent++
-				return
 			} else {
-				x.significand[i-1]++
+				x.significand[p-1]++
 			}
-			hasNonZero = false
-		case d == 5 && !hasNonZero:
-			// round to nearest even
-			if x.significand[i-1]%2 != 0 {
-				if i == 0 {
-					x.significand[0] = 1
-					x.exponent++
-					return
-				} else {
-					x.significand[i-1]++
+		} else {
+			// round to nearest even!
+			if p != 0 {
+				if x.significand[p-1]%2 != 0 {
+					x.significand[p-1]++
 				}
 			}
 		}
-		x.significand[i] = 0
 	}
 
 	// now unwind to the left to make sure we don't have any lingering carry

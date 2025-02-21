@@ -225,7 +225,7 @@ func TestRound3(t *testing.T) {
 	r := NewUint64(12345478900000)
 	r.SetPrecision(5)
 
-	if r.String() != "1.2346e13" {
+	if r.String() != "1.2345e13" {
 		t.Fatal("invalid round", r.String())
 	}
 }
