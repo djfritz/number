@@ -16,7 +16,8 @@ type Real struct {
 	negative    bool   // true if the number is negative
 	exponent    int    // exponent
 	precision   uint   // maximum allowed precision of the significand in decimal digits
-	form        int
+	form        int    // other forms of an implementation of a real number -- infinity, NaN, etc.
+	mode        int    // rounding mode
 }
 
 const (
@@ -36,6 +37,7 @@ func (x *Real) Copy() *Real {
 	z := &Real{
 		negative:  x.negative,
 		precision: x.precision,
+		mode:      x.mode,
 	}
 	z.CopyValue(x)
 	return z
@@ -59,6 +61,7 @@ func initFrom(x *Real) *Real {
 	return &Real{
 		significand: []byte{},
 		precision:   x.precision,
+		mode:        x.mode,
 	}
 }
 
@@ -70,8 +73,10 @@ func initFrom2(x, y *Real) *Real {
 	}
 	if x.precision > y.precision {
 		r.precision = x.precision
+		r.mode = x.mode
 	} else {
 		r.precision = y.precision
+		r.mode = y.mode
 	}
 	return r
 }

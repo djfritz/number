@@ -4,6 +4,14 @@
 
 package number
 
+const (
+	ModeNearestEven = iota
+	ModeNearest
+	ModeUp
+	ModeDown
+	ModeZero
+)
+
 // Round the value to the set precision and rounding mode, if necessary.
 func (x *Real) round() {
 	x.validate()
@@ -19,12 +27,25 @@ func (x *Real) roundTo(p uint) {
 		return
 	}
 
+	switch x.mode {
+	case ModeNearestEven:
+		x.roundToNearestEven(p)
+	case ModeNearest:
+	case ModeUp:
+	case ModeDown:
+	case ModeZero:
+	}
+}
+
+func (x *Real) roundToNearestEven(p uint) {
+	var hasNonZero bool
 	for i := len(x.significand) - 1; i >= int(p); i-- {
 		d := x.significand[i]
 		switch {
-		case d < 5:
-			// round down
-		case d > 5:
+		case d < 5 && d > 0:
+			// we have something but we can't decide yet
+			hasNonZero = true
+		case d > 5 || (hasNonZero && d == 5):
 			// round up
 			if i == 0 {
 				x.significand[0] = 1
@@ -33,7 +54,8 @@ func (x *Real) roundTo(p uint) {
 			} else {
 				x.significand[i-1]++
 			}
-		case d == 5:
+			hasNonZero = false
+		case d == 5 && !hasNonZero:
 			// round to nearest even
 			if x.significand[i-1]%2 != 0 {
 				if i == 0 {
