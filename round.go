@@ -4,6 +4,8 @@
 
 package number
 
+import "errors"
+
 const (
 	ModeNearestEven = iota
 	ModeNearest
@@ -11,6 +13,30 @@ const (
 	ModeDown
 	ModeZero
 )
+
+var ErrInvalidMode = errors.New("invalid mode")
+
+func (x *Real) SetMode(m int) error {
+	switch m {
+	case ModeNearestEven:
+		fallthrough
+	case ModeNearest:
+		fallthrough
+	case ModeUp:
+		fallthrough
+	case ModeDown:
+		fallthrough
+	case ModeZero:
+		x.mode = m
+	default:
+		return ErrInvalidMode
+	}
+	return nil
+}
+
+func (x *Real) Mode() int {
+	return x.mode
+}
 
 // Round the value to the set precision and rounding mode, if necessary.
 func (x *Real) round() {
@@ -31,9 +57,11 @@ func (x *Real) roundTo(p uint) {
 	case ModeNearestEven:
 		x.roundToNearestEven(p)
 	case ModeNearest:
+		x.roundToNearest(p)
 	case ModeUp:
 	case ModeDown:
 	case ModeZero:
+		// just truncate
 	}
 
 	x.significand = x.significand[:p]
@@ -44,7 +72,7 @@ func (x *Real) roundToNearestEven(p uint) {
 	switch {
 	case d < 5:
 		// round down
-	case d > 5:
+	case d >= 5:
 		// round up
 		if p == 0 {
 			x.significand[0] = 1
@@ -75,6 +103,37 @@ func (x *Real) roundToNearestEven(p uint) {
 					x.significand[p-1]++
 				}
 			}
+		}
+	}
+
+	// now unwind to the left to make sure we don't have any lingering carry
+	for i := int(p) - 1; i >= 0; i-- {
+		if x.significand[i] < 10 {
+			break
+		}
+		x.significand[i] -= 10
+
+		if i == 0 {
+			// pad
+			x.significand = append([]byte{1}, x.significand...)
+			break
+		}
+		x.significand[i-1]++
+	}
+}
+
+func (x *Real) roundToNearest(p uint) {
+	d := x.significand[p]
+	switch {
+	case d < 5:
+		// round down
+	case d >= 5:
+		// round up
+		if p == 0 {
+			x.significand[0] = 1
+			x.exponent++
+		} else {
+			x.significand[p-1]++
 		}
 	}
 
