@@ -4,7 +4,9 @@
 
 package number
 
-import "errors"
+import (
+	"errors"
+)
 
 const (
 	ModeNearestEven = iota
@@ -72,7 +74,7 @@ func (x *Real) roundToNearestEven(p uint) {
 	switch {
 	case d < 5:
 		// round down
-	case d >= 5:
+	case d > 5:
 		// round up
 		if p == 0 {
 			x.significand[0] = 1

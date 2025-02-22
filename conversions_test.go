@@ -15,7 +15,7 @@ func TestFormatterDecimalLargePrecision(t *testing.T) {
 	x = x.Factorial()
 	x.exponent = 0
 
-	if fmt.Sprintf("%.100f", x) != "9.33262154439441526816992388562667004907159682643816214685929638952175999932299156089414639761565183" {
+	if fmt.Sprintf("%.100f", x) != "9.332621544394415268169923885626670049071596826438162146859296389521759999322991560894146397615651822" {
 		t.Fatal("invalid format", fmt.Sprintf("%.100f", x))
 	}
 }
@@ -26,7 +26,7 @@ func TestFormatterDecimalLargePrecision2(t *testing.T) {
 	x = x.Factorial()
 	x.exponent = 0
 
-	if fmt.Sprintf("%.100v", x) != "9.33262154439441526816992388562667004907159682643816214685929638952175999932299156089414639761565183" {
+	if fmt.Sprintf("%.100v", x) != "9.332621544394415268169923885626670049071596826438162146859296389521759999322991560894146397615651822" {
 		t.Fatal("invalid format", fmt.Sprintf("%.100v", x))
 	}
 }
@@ -257,6 +257,18 @@ func TestParseReal5(t *testing.T) {
 }
 
 func TestParseReal6(t *testing.T) {
+	s := "5.75"
+	x, err := ParseReal(s, 5)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if x.String() != "5.75e0" {
+		t.Fatal("invalid parse", x)
+	}
+}
+
+func TestParseReal7(t *testing.T) {
 	s := "-"
 	_, err := ParseReal(s, 5)
 	if err == nil {
