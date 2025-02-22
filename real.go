@@ -35,7 +35,6 @@ const (
 // Copy returns a deep copy of the real value.
 func (x *Real) Copy() *Real {
 	z := &Real{
-		negative:  x.negative,
 		precision: x.precision,
 		mode:      x.mode,
 	}
@@ -47,6 +46,7 @@ func (x *Real) Copy() *Real {
 // Copy just the value of y into x, leaving x's precision and mode the same.
 // The result will round if needed.
 func (x *Real) CopyValue(y *Real) {
+	x.negative = y.negative
 	x.exponent = y.exponent
 	x.significand = make([]byte, len(y.significand))
 	copy(x.significand, y.significand)
