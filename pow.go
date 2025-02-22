@@ -63,9 +63,9 @@ func (x *Real) Pow(y *Real) *Real {
 
 	// x^y == e^(y*ln(x))
 	x2 := x.Copy()
-	x2.SetPrecision(internalPrecisionBuffer + p)
+	x2.pip(p)
 	y2 := y.Copy()
-	y2.SetPrecision(internalPrecisionBuffer + p)
+	y2.pip(p)
 
 	z := y2.mul(x2.ln()).exp()
 	z.SetPrecision(p)
@@ -101,7 +101,7 @@ func (x *Real) Sqrt() *Real {
 	x.validate()
 
 	x2 := x.Copy()
-	x2.SetPrecision(internalPrecisionBuffer + x.precision)
+	x2.pip(x.precision)
 
 	half := initFrom(x2)
 	half.SetUint64(5)

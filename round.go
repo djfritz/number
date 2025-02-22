@@ -71,6 +71,13 @@ func (x *Real) roundTo(p uint) {
 
 func (x *Real) roundToNearestEven(p uint) {
 	d := x.significand[p]
+
+	//	// keep looking to the right, as rounding may change our rounding digit
+	//	if d == 4 && uint(len(x.significand)) > p+1 {
+	//		x.roundToNearestEven(p + 1)
+	//		d = x.significand[p]
+	//	}
+
 	switch {
 	case d < 5:
 		// round down
@@ -79,6 +86,7 @@ func (x *Real) roundToNearestEven(p uint) {
 		if p == 0 {
 			x.significand[0] = 1
 			x.exponent++
+			return
 		} else {
 			x.significand[p-1]++
 		}
@@ -95,6 +103,7 @@ func (x *Real) roundToNearestEven(p uint) {
 			if p == 0 {
 				x.significand[0] = 1
 				x.exponent++
+				return
 			} else {
 				x.significand[p-1]++
 			}
@@ -118,6 +127,7 @@ func (x *Real) roundToNearestEven(p uint) {
 		if i == 0 {
 			// pad
 			x.significand = append([]byte{1}, x.significand...)
+			x.exponent++
 			break
 		}
 		x.significand[i-1]++
@@ -126,6 +136,13 @@ func (x *Real) roundToNearestEven(p uint) {
 
 func (x *Real) roundToNearest(p uint) {
 	d := x.significand[p]
+
+	//	// keep looking to the right, as rounding may change our rounding digit
+	//	if d == 4 && uint(len(x.significand)) > p+1 {
+	//		x.roundToNearest(p + 1)
+	//		d = x.significand[p]
+	//	}
+
 	switch {
 	case d < 5:
 		// round down
@@ -134,6 +151,7 @@ func (x *Real) roundToNearest(p uint) {
 		if p == 0 {
 			x.significand[0] = 1
 			x.exponent++
+			return
 		} else {
 			x.significand[p-1]++
 		}
@@ -149,6 +167,7 @@ func (x *Real) roundToNearest(p uint) {
 		if i == 0 {
 			// pad
 			x.significand = append([]byte{1}, x.significand...)
+			x.exponent++
 			break
 		}
 		x.significand[i-1]++

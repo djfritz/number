@@ -139,3 +139,30 @@ func BenchmarkAdd(b *testing.B) {
 		x.Add(y)
 	}
 }
+
+func TestAddRoundEven(t *testing.T) {
+	x, _ := ParseReal("0.4444444444", DefaultPrecision)
+	y, _ := ParseReal("0.5555555555", DefaultPrecision)
+	x.SetMode(ModeNearest)
+	y.SetMode(ModeNearest)
+
+	z := x.Add(y)
+	z.SetPrecision(9)
+	if z.Compare(NewInt64(1)) != 0 {
+		t.Fatal("invalid add", z)
+	}
+}
+
+func TestAddRoundEven2(t *testing.T) {
+	x, _ := ParseReal("12e3", DefaultPrecision)
+	y, _ := ParseReal("3446", DefaultPrecision)
+	x.SetMode(ModeNearest)
+	y.SetMode(ModeNearest)
+	x.SetPrecision(3)
+	y.SetPrecision(3)
+
+	z := x.Add(y)
+	if z.Compare(NewInt64(15500)) != 0 {
+		t.Fatal("invalid add", z)
+	}
+}

@@ -17,6 +17,15 @@ func TestReciprocal1(t *testing.T) {
 	}
 }
 
+func TestReciprocalOne(t *testing.T) {
+	x := NewInt64(1)
+	z := x.Reciprocal()
+
+	if z.Compare(x) != 0 {
+		t.Fatal("invalid reciprocal", z)
+	}
+}
+
 func TestReciprocal2(t *testing.T) {
 	x := NewInt64(1234)
 	x.exponent = 1

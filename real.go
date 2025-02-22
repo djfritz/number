@@ -292,3 +292,12 @@ func (x *Real) Ceiling() *Real {
 	}
 	return x.Integer().Add(NewInt64(1))
 }
+
+// Prepare internal precision -- used to set a sane internal precision before
+// performing an operation.
+func (x *Real) pip(p uint) {
+	if p < DefaultPrecision {
+		x.precision = DefaultPrecision
+	}
+	x.precision += internalPrecisionBuffer
+}

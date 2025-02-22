@@ -225,6 +225,8 @@ func ParseReal(s string, p uint) (*Real, error) {
 	if len(s) > 0 && s[0] == '-' {
 		x.negative = true
 		s = s[1:]
+	} else if len(s) > 0 && s[0] == '+' {
+		s = s[1:]
 	}
 
 	// significand

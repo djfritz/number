@@ -12,7 +12,7 @@ const MaxExpIterations = 1000
 func (x *Real) Exp() *Real {
 	x.validate()
 	x2 := x.Copy()
-	x2.SetPrecision(internalPrecisionBuffer + x.precision)
+	x2.pip(x.precision)
 	z := x2.exp()
 	z.SetPrecision(x.precision)
 	return z

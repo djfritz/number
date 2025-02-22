@@ -12,7 +12,7 @@ import (
 // Return the natural log of x.
 func (x *Real) Ln() *Real {
 	x2 := x.Copy()
-	x2.SetPrecision(internalPrecisionBuffer + x.precision)
+	x2.pip(x.precision)
 	z := x2.ln()
 	z.SetPrecision(x.precision)
 	return z

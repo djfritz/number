@@ -12,7 +12,7 @@ import (
 func (x *Real) Reciprocal() *Real {
 	x.validate()
 	x2 := x.Copy()
-	x2.SetPrecision(internalPrecisionBuffer + x.precision)
+	x2.pip(x.precision)
 	z := x2.reciprocal()
 	z.SetPrecision(x.precision)
 	return z
@@ -30,6 +30,10 @@ func (x *Real) reciprocal() *Real {
 		z := initFrom(x)
 		z.form = FormInf
 		z.negative = x.negative
+		return z
+	} else if x.Compare(NewUint64(1)) == 0 {
+		z := initFrom(x)
+		z.SetUint64(1)
 		return z
 	}
 
