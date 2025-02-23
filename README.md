@@ -10,6 +10,46 @@ Currently the only type in this package is `Real`, which is meant to represent
 a real (ℝ) number. Eventually complex (ℂ) and rational (ℚ) numbers will be
 supported.
 
+Arithmetic operations do not modify their operands and return values are always
+deep copies of underlying data. This simplifies programming patterns, but
+causes additional memory usage. Additionally, return values of operations will
+have the precision of the operands (largest if precision is different), and the
+rounding mode of the receiver operand.
+
+## Example
+
+```
+package main
+
+import (
+	"fmt"
+
+	"github.com/djfritz/number"
+)
+
+func main() {
+	x := number.NewInt64(5)
+	y, _ := number.ParseReal("-1.234e-2", number.DefaultPrecision)
+
+	z := x.Add(y)                         // x and y are unmodified
+	zln := z.Ln().Sub(number.NewInt64(2)) // it's possible to chain operations
+
+	fmt.Printf("x       = %v\n", x)   // the %v verb prints the number in the most natural way, depending on the number
+	fmt.Printf("y       = %.9f\n", y) // precision with the %f verb works as expected
+	fmt.Printf("z       = %e\n", z)   // as does scientific notation
+	fmt.Printf("ln(z)-2 = %v\n", zln)
+}
+```
+
+Results in:
+
+```
+x       = 5
+y       = -0.01234
+z       = 4.98766e0
+ln(z)-2 = -0.393033138098075529994326559359829
+```
+
 ## Real numbers 
 
 A zero value for a Real represents the number 0, and new values can be used in
@@ -29,8 +69,6 @@ The default precision is 34, which is equivalent to IEEE-754-2008 128-bit
 decimal floating point numbers.
 
 Unless specified, real values use the default rounding mode and precision.
-
-Arithmetic operations do not modify their operands.
 
 ### Tests
 
