@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -219,6 +220,8 @@ func (x *Real) Float64() (float64, bool) {
 // Input can be as a fixed precision number or in scientific notation, using a
 // lower case 'e' for the exponent.
 func ParseReal(s string, p uint) (*Real, error) {
+	s = strings.ToLower(s)
+
 	x := new(Real)
 
 	// negative sign
@@ -227,6 +230,14 @@ func ParseReal(s string, p uint) (*Real, error) {
 		s = s[1:]
 	} else if len(s) > 0 && s[0] == '+' {
 		s = s[1:]
+	}
+
+	if s == "inf" {
+		x.form = FormInf
+		return x, nil
+	} else if s == "nan" {
+		x.form = FormNaN
+		return x, nil
 	}
 
 	// significand
