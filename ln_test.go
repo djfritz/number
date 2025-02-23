@@ -94,6 +94,22 @@ func TestLnAllTheWayDown(t *testing.T) {
 	}
 }
 
+// The natural log of the number in x below is, to far more than 17 digits:
+// -8.999999999999987849999179874970475500000000085410167440336139577720... ×10^-8
+// The dectest suite has a note about this particular test being a ">.5ulp
+// case", but we calculate this to better than .5ulp with the default internal
+// precision.
+func TestLnDecTestLn116(t *testing.T) {
+	x, _ := ParseReal("0.99999991000000405", DefaultPrecision)
+	x.SetMode(ModeNearest)
+	x.SetPrecision(17)
+	z := x.Ln()
+
+	if z.String() != "-8.9999999999999878e-8" { // original test has this ending in 9879
+		t.Fatal("invalid ln", z)
+	}
+}
+
 func BenchmarkLn(b *testing.B) {
 	x := new(Real)
 	x.significand = []byte{9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9}

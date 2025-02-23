@@ -12,6 +12,7 @@ import "bytes"
 //	0  : x == y
 //	-1 : x < y
 func (x *Real) Compare(y *Real) int {
+	// non-real forms
 	if x.IsInf() && y.IsInf() && x.negative == y.negative {
 		return 0
 	} else if x.IsNaN() || y.IsNaN() {
@@ -28,24 +29,70 @@ func (x *Real) Compare(y *Real) int {
 		return -1
 	}
 
+	// mismatched negative flags
 	if !x.negative && y.negative {
 		return 1
 	} else if x.negative && !y.negative {
 		return -1
 	}
 
-	if !x.negative && y.IsZero() {
-		return 1
-	} else if x.negative && y.IsZero() {
-		return -1
+	// zeros
+	if x.IsZero() && y.IsZero() {
+		return 0
+	} else if x.IsZero() {
+		if y.negative {
+			return 1
+		} else {
+			return -1
+		}
+	} else if y.IsZero() {
+		if x.negative {
+			return -1
+		} else {
+			return 1
+		}
 	}
 
+	// exponents
 	if x.exponent > y.exponent {
-		return 1
+		if x.negative {
+			return -1
+		} else {
+			return 1
+		}
 	} else if x.exponent < y.exponent {
-		return -1
+		if x.negative {
+			return 1
+		} else {
+			return -1
+		}
 	}
 
 	// same exponents, just compare the significand
+	if x.negative {
+		return bytes.Compare(y.significand, x.significand)
+	}
 	return bytes.Compare(x.significand, y.significand)
+}
+
+func (x *Real) Max(y *Real) *Real {
+	switch x.Compare(y) {
+	case 1:
+		return x.Copy()
+	case -1:
+		return y.Copy()
+	default:
+		return x.Copy()
+	}
+}
+
+func (x *Real) Min(y *Real) *Real {
+	switch x.Compare(y) {
+	case 1:
+		return y.Copy()
+	case -1:
+		return x.Copy()
+	default:
+		return x.Copy()
+	}
 }

@@ -28,7 +28,7 @@ const (
 
 const (
 	DefaultPrecision               = 34 // The default precision for a real number. Expressed in decimal digits.
-	internalPrecisionBuffer        = 10
+	internalPrecisionBuffer        = 5
 	float64MinimumDecimalPrecision = 15 // minimum number of correct decimal digits in a float64
 )
 

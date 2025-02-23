@@ -51,9 +51,21 @@ func (x *Real) Mod(y *Real) *Real {
 		return z
 	}
 
+	x2 := x.Copy()
+	y2 := y.Copy()
+	x2.pip(x.precision)
+	y2.pip(y.precision)
+
+	m := x2.mod(y2)
+	m.SetPrecision(x.precision)
+	return m
+}
+
+func (x *Real) mod(y *Real) *Real {
 	xi := x.Integer()
 	yi := y.Integer()
 
-	m := xi.Sub(xi.Div(yi).Floor().Mul(yi))
+	m := xi.Sub(xi.div(yi).Floor().mul(yi))
+
 	return m
 }

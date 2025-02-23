@@ -44,6 +44,9 @@ func (x *Real) Mode() int {
 func (x *Real) round() {
 	x.validate()
 	x.roundTo(x.precision)
+	if x.IsZero() {
+		x.negative = false
+	}
 }
 
 // Round the value to the given precision and rounding mode.
@@ -71,12 +74,6 @@ func (x *Real) roundTo(p uint) {
 
 func (x *Real) roundToNearestEven(p uint) {
 	d := x.significand[p]
-
-	//	// keep looking to the right, as rounding may change our rounding digit
-	//	if d == 4 && uint(len(x.significand)) > p+1 {
-	//		x.roundToNearestEven(p + 1)
-	//		d = x.significand[p]
-	//	}
 
 	switch {
 	case d < 5:
@@ -136,12 +133,6 @@ func (x *Real) roundToNearestEven(p uint) {
 
 func (x *Real) roundToNearest(p uint) {
 	d := x.significand[p]
-
-	//	// keep looking to the right, as rounding may change our rounding digit
-	//	if d == 4 && uint(len(x.significand)) > p+1 {
-	//		x.roundToNearest(p + 1)
-	//		d = x.significand[p]
-	//	}
 
 	switch {
 	case d < 5:

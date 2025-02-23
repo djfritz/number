@@ -8,7 +8,16 @@ package number
 func (x *Real) Pow(y *Real) *Real {
 	x.validate()
 	y.validate()
+	x2 := x.Copy()
+	y2 := y.Copy()
+	x2.pip(x.precision)
+	y2.pip(y.precision)
+	z := x2.pow(y2)
+	z.SetPrecision(x.precision)
+	return z
+}
 
+func (x *Real) pow(y *Real) *Real {
 	// Exponentiation has a lot of edge cases around infinity.
 	if x.IsNaN() || y.IsNaN() {
 		z := initFrom2(x, y)
@@ -24,6 +33,11 @@ func (x *Real) Pow(y *Real) *Real {
 		z := initFrom2(x, y)
 		z.SetUint64(1)
 		return z
+	} else if x.IsZero() {
+		z := initFrom2(x, y)
+		return z
+	} else if y.Compare(NewUint64(1)) == 0 {
+		return x.Copy()
 	} else if x.IsInf() && y.Abs().Compare(NewUint64(1)) >= 0 {
 		// inf^Z == inf for all other |Z| >=1
 		z := initFrom2(x, y)
@@ -57,6 +71,26 @@ func (x *Real) Pow(y *Real) *Real {
 		z := initFrom2(x, y)
 		z.form = FormNaN
 		return z
+	}
+
+	// Positive integer exponents can be calculated faster by decomposing
+	// the exponent. Additionally it allows for things like -3^2.
+	if y.IsInteger() {
+		if y.negative {
+			yi := y.Copy()
+			yi.negative = false
+			return x.pow(yi).reciprocal()
+		} else {
+			two := initFrom2(x, y)
+			two.SetUint64(2)
+			if y.Compare(two) == 0 {
+				return x.mul(x)
+			} else if y.mod(two).Compare(new(Real)) == 0 {
+				return x.pow(y.div(two).Integer()).pow(two)
+			} else {
+				return x.Pow(y.Sub(NewUint64(1))).mul(x)
+			}
+		}
 	}
 
 	p := umax(x.precision, y.precision)
@@ -106,7 +140,7 @@ func (x *Real) Sqrt() *Real {
 	half := initFrom(x2)
 	half.SetUint64(5)
 	half.exponent = -1
-	z := x2.Pow(half)
+	z := x2.pow(half)
 	z.SetPrecision(x.precision)
 	return z
 }
