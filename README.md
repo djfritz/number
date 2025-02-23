@@ -1,3 +1,5 @@
+# Number
+
 [![Go Reference](https://pkg.go.dev/badge/github.com/djfritz/number.svg)](https://pkg.go.dev/github.com/djfritz/number)
 
 Package number implements arbitrary precision decimal floating point numbers and
@@ -70,7 +72,7 @@ decimal floating point numbers.
 
 Unless specified, real values use the default rounding mode and precision.
 
-### Tests
+## Tests
 
 Beyond the unit tests in this package, Real is tested against Mike Cowlishaw's
 excellent [dectest](https://speleotrove.com/decimal/) tests. Those tests are
