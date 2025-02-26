@@ -31,9 +31,10 @@ func (x *Real) remainder(y *Real) *Real {
 		return z
 	}
 
-	rd := x.div(y)
+	rd := x.Div(y) // do the full Div() function here to make sure we expand and round first
 	rd = rd.Integer()
-	z = x.Sub(rd.mul(y))
+
+	z = x.Sub(y.mul(rd))
 
 	return z
 }

@@ -150,7 +150,7 @@ func (x *Real) Format(s fmt.State, verb rune) {
 	s.Write(o.Bytes())
 }
 
-// Return the integer part of a real number.
+// Return the integer part of a real number by truncating.
 func (x *Real) Integer() *Real {
 	z := x.Copy()
 

@@ -11,8 +11,6 @@ import (
 const (
 	ModeNearestEven = iota
 	ModeNearest
-	ModeUp
-	ModeDown
 	ModeZero
 )
 
@@ -23,10 +21,6 @@ func (x *Real) SetMode(m int) error {
 	case ModeNearestEven:
 		fallthrough
 	case ModeNearest:
-		fallthrough
-	case ModeUp:
-		fallthrough
-	case ModeDown:
 		fallthrough
 	case ModeZero:
 		x.mode = m
@@ -63,8 +57,6 @@ func (x *Real) roundTo(p uint) {
 		x.roundToNearestEven(p)
 	case ModeNearest:
 		x.roundToNearest(p)
-	case ModeUp:
-	case ModeDown:
 	case ModeZero:
 		// just truncate
 	}
@@ -163,4 +155,43 @@ func (x *Real) roundToNearest(p uint) {
 		}
 		x.significand[i-1]++
 	}
+}
+
+// Return the rounded integer part of a real number.
+func (x *Real) RoundedInteger() *Real {
+	z := x.Copy()
+
+	if z.IsInf() || z.IsNaN() || z.IsInteger() {
+		return z
+	}
+
+	if z.exponent < 0 {
+		z.roundTo(1)
+		if z.exponent == -1 {
+			d := z.significand[0]
+			switch {
+			case d < 5:
+				z.SetInt64(0)
+				z.negative = false
+			case d > 5:
+				z.SetInt64(1)
+				z.negative = x.negative
+			case d == 5:
+				switch z.mode {
+				case ModeNearestEven, ModeZero:
+					z.SetInt64(0)
+					z.negative = false
+				case ModeNearest:
+					z.SetInt64(1)
+					z.negative = x.negative
+				}
+			}
+		} else if z.exponent != 0 {
+			z.SetInt64(0)
+			z.negative = false
+		}
+	} else {
+		z.roundTo(uint(z.exponent) + 1)
+	}
+	return z
 }
