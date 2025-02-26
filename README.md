@@ -79,7 +79,7 @@ excellent [dectest](https://speleotrove.com/decimal/) tests. Those tests are
 kept in [another package](https://github.com/djfritz/numbertests), mostly to
 avoid embedding an ICU license in this package.
 
-Currently, 8185 of the subset dectest tests are run against Real. Six of those
+Currently, 8761 of the subset dectest tests are run against Real. Six of those
 currently fail, but only because of inexact rounding expected in the test
 suite. Real computes to better than .5ulp in those cases and provides a more
 accurate answer.
