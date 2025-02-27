@@ -72,6 +72,71 @@ func (x *Real) sin() *Real {
 	return z
 }
 
+func (x *Real) Cos() *Real {
+	x.validate()
+	x2 := x.Copy()
+	x2.pip(x.precision)
+	z := x2.cos()
+	z.SetPrecision(x.precision)
+	return z
+}
+
+func (x *Real) cos() *Real {
+	if x.IsInf() || x.IsNaN() {
+		z := initFrom(x)
+		z.form = FormNaN
+		return z
+	} else if x.IsZero() {
+		z := initFrom(x)
+		z.SetInt64(1)
+		return z
+	}
+
+	z := initFrom(x)
+
+	n1 := initFrom(x)
+	n1.SetInt64(-1)
+	two := initFrom(x)
+	two.SetInt64(2)
+	one := initFrom(x)
+	one.SetInt64(1)
+
+	twoPi := initFrom(x)
+	twoPi.significand = make([]byte, len(π))
+	copy(twoPi.significand, π)
+	twoPi.round()
+	twoPi = twoPi.mul(two)
+
+	xx := x
+	if xx.Compare(twoPi) == 1 {
+		xx = xx.Remainder(twoPi)
+	}
+
+	var converged bool
+	for i := 0; i < MaxTrigIterations; i++ {
+		twoN := initFrom(x)
+		twoN.SetUint64(uint64(i))
+		twoN = twoN.mul(two)
+
+		n := n1.ipow(i)
+		d := twoN.Factorial()
+		c := xx.pow(twoN)
+
+		zn := z.Add(n.div(d).mul(c))
+		if z.Compare(zn) == 0 {
+			z = zn
+			converged = true
+			break
+		}
+		z = zn
+	}
+	if !converged {
+		panic(fmt.Sprintf("failed to converge sin(%v)", x))
+	}
+
+	return z
+}
+
 var π = []byte{3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3, 2, 3, 8, 4, 6,
 	2, 6, 4, 3, 3, 8, 3, 2, 7, 9, 5, 0, 2, 8, 8, 4, 1, 9, 7, 1, 6, 9, 3, 9, 9, 3,
 	7, 5, 1, 0, 5, 8, 2, 0, 9, 7, 4, 9, 4, 4, 5, 9, 2, 3, 0, 7, 8, 1, 6, 4, 0, 6,

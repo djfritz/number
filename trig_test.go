@@ -53,3 +53,50 @@ func TestSine5(t *testing.T) {
 		t.Fatal("invalid sin", z.String())
 	}
 }
+
+func TestCosine1(t *testing.T) {
+	x := NewUint64(5)
+	z := x.Cos()
+
+	if z.String() != "2.836621854632262644666391715135573e-1" {
+		t.Fatal("invalid cos", z.String())
+	}
+}
+
+func TestCosine2(t *testing.T) {
+	x := NewUint64(5000)
+	z := x.Cos()
+
+	if z.String() != "1.546684061807471215134172189405023e-1" {
+		t.Fatal("invalid cos", z.String())
+	}
+}
+
+func TestCosine3(t *testing.T) {
+	x := NewUint64(1)
+	x.exponent = 22
+	x.SetPrecision(50)
+	z := x.Cos()
+
+	if z.String() != "5.232147853951389454975944733847094e-1" {
+		t.Fatal("invalid cos", z.String())
+	}
+}
+
+func TestCosine4(t *testing.T) {
+	x := NewUint64(0)
+	z := x.Cos()
+
+	if z.String() != "1e0" {
+		t.Fatal("invalid cos", z)
+	}
+}
+
+func TestCosine5(t *testing.T) {
+	x, _ := ParseReal("6.28318530717958647692528676655900576839433879875021164194988918461563281257", DefaultPrecision) // 2π
+	z := x.Cos()
+
+	if z.String() != "1e0" {
+		t.Fatal("invalid cos", z.String())
+	}
+}
