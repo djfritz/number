@@ -100,3 +100,64 @@ func TestCosine5(t *testing.T) {
 		t.Fatal("invalid cos", z.String())
 	}
 }
+
+func TestPythagoreanIdentity(t *testing.T) {
+	x, _ := ParseReal("3", DefaultPrecision)
+
+	s := x.Sin()
+	c := x.Cos()
+
+	z := s.Pow(NewUint64(2)).Add(c.Pow(NewUint64(2)))
+
+	if z.String() != "1e0" {
+		t.Fatal("invalid Pythagorean identity", z.String())
+	}
+}
+
+func TestTangent1(t *testing.T) {
+	x := NewUint64(5)
+	z := x.Tan()
+
+	if z.String() != "-3.380515006246585636982705879447344e0" {
+		t.Fatal("invalid tan", z.String())
+	}
+}
+
+func TestTangent2(t *testing.T) {
+	x := NewUint64(5000)
+	z := x.Tan()
+
+	if z.String() != "-6.387642202844121286321033963701517e0" {
+		t.Fatal("invalid tan", z.String())
+	}
+}
+
+func TestTangent3(t *testing.T) {
+	x := NewUint64(1)
+	x.exponent = 22
+	x.SetPrecision(50)
+	z := x.Tan()
+
+	if z.String() != "-1.628778225606898878549375936939549e0" {
+		t.Fatal("invalid tan", z.String())
+	}
+}
+
+func TestTangent4(t *testing.T) {
+	x := NewUint64(0)
+	z := x.Tan()
+
+	if z.String() != "0" {
+		t.Fatal("invalid tan", z)
+	}
+}
+
+// tan(2π) == 0, but even the intel decimal arithmetic library gives us 2.316e-34.
+func TestTangent5(t *testing.T) {
+	x, _ := ParseReal("6.28318530717958647692528676655900576839433879875021164194988918461563281257", DefaultPrecision) // 2π
+	z := x.Tan()
+
+	if z.String() != "2.316e-34" {
+		t.Fatal("invalid tan", z.String())
+	}
+}
