@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-// Return the natural log of x.
+// Return the natural logarithm (logₑ) of x.
 func (x *Real) Ln() *Real {
 	x2 := x.Copy()
 	x2.pip(x.precision)

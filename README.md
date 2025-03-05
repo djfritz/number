@@ -2,21 +2,18 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/djfritz/number.svg)](https://pkg.go.dev/github.com/djfritz/number)
 
-Package number implements arbitrary precision decimal floating point numbers and
-associated arithmetic. Unlike binary floating point numbers, package number 
-stores decimal digits of the significand as decimal values (stored as a
-[]byte). This means that decimal representations can be stored exactly (unlike
-many numbers in binary floating point).
 
-Currently the only type in this package is `Real`, which is meant to represent
-a real (ℝ) number. Eventually complex (ℂ) and rational (ℚ) numbers will be
-supported.
+Package number is a from scratch implementation of arbitrary-precision decimal
+floating point numbers and associated arithmetic. 
+
+Currently the only supported type is `Real`, which represents a real (ℝ)
+number. Eventually complex (ℂ) and rational (ℚ) numbers will be supported.
 
 Arithmetic operations do not modify their operands and return values are always
 deep copies of underlying data. This simplifies programming patterns, but
 causes additional memory usage. Additionally, return values of operations will
-have the precision of the operands (largest if precision is different), and the
-rounding mode of the receiver operand.
+have the precision of the operand with the largest precision and the rounding
+mode of the receiver operand.
 
 ## Example
 
@@ -69,8 +66,6 @@ Real currently supports three rounding modes:
 
 The default precision is 34, which is equivalent to IEEE-754-2008 128-bit
 decimal floating point numbers.
-
-Unless specified, real values use the default rounding mode and precision.
 
 ## Tests
 

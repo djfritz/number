@@ -6,8 +6,12 @@ package number
 
 import "fmt"
 
+// MaxTrigIterations is the maximum number of iterations in the Taylor series
+// approximation of trigonometric functions. If this limit is reached, the
+// function will panic.
 const MaxTrigIterations = 1000
 
+// Return the sine of x, where x is in radians.
 func (x *Real) Sin() *Real {
 	x.validate()
 	x2 := x.Copy()
@@ -72,6 +76,7 @@ func (x *Real) sin() *Real {
 	return z
 }
 
+// Return the cosine of x, where x is in radians.
 func (x *Real) Cos() *Real {
 	x.validate()
 	x2 := x.Copy()
@@ -137,6 +142,7 @@ func (x *Real) cos() *Real {
 	return z
 }
 
+// Return the tangent of x, where x is in radians.
 func (x *Real) Tan() *Real {
 	x.validate()
 	x2 := x.Copy()

@@ -75,6 +75,7 @@ func (x *Real) Compare(y *Real) int {
 	return bytes.Compare(x.significand, y.significand)
 }
 
+// Return a copy of the larger of x and y, or x if the values are equal.
 func (x *Real) Max(y *Real) *Real {
 	switch x.Compare(y) {
 	case 1:
@@ -86,6 +87,7 @@ func (x *Real) Max(y *Real) *Real {
 	}
 }
 
+// Return a copy of the smaller of x and y, or x if the values are equal.
 func (x *Real) Min(y *Real) *Real {
 	switch x.Compare(y) {
 	case 1:

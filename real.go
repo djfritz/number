@@ -20,19 +20,23 @@ type Real struct {
 	mode        int    // rounding mode
 }
 
+// Number forms
 const (
-	FormReal = iota
-	FormNaN
-	FormInf
+	FormReal = iota // A finite real number
+	FormNaN         // Not a number
+	FormInf         // Infinity
 )
 
+// The default precision for a real number. Expressed in decimal digits. 34
+// digits is equivalent IEEE-754-2008 128-bit decimal floating point.
+const DefaultPrecision = 34
+
 const (
-	DefaultPrecision               = 34 // The default precision for a real number. Expressed in decimal digits.
-	internalPrecisionBuffer        = 5
+	internalPrecisionBuffer        = 5  // additional precision to use when performing operations internally
 	float64MinimumDecimalPrecision = 15 // minimum number of correct decimal digits in a float64
 )
 
-// Copy returns a deep copy of the real value.
+// Copy returns a deep copy of x.
 func (x *Real) Copy() *Real {
 	z := &Real{
 		precision: x.precision,
@@ -243,6 +247,7 @@ func abs(x int) int {
 	return x
 }
 
+// Return the absolute value of x.
 func (x *Real) Abs() *Real {
 	z := x.Copy()
 	z.negative = false
@@ -257,17 +262,17 @@ func (x *Real) IsZero() bool {
 	return false
 }
 
-// Returns true if x is ±Inf
+// Returns true if x is ±Inf.
 func (x *Real) IsInf() bool {
 	return x.form == FormInf
 }
 
-// Returns true if x is NaN
+// Returns true if x is NaN.
 func (x *Real) IsNaN() bool {
 	return x.form == FormNaN
 }
 
-// Returns true if x has no fractional part.
+// Returns true if x is an integer.
 func (x *Real) IsInteger() bool {
 	if x.exponent < len(x.significand)-1 {
 		return false
@@ -282,10 +287,12 @@ func estimateConvergence(known, precision uint) int {
 	return int(iterations)
 }
 
+// Returns the floor of x.
 func (x *Real) Floor() *Real {
 	return x.Integer()
 }
 
+// Returns the ceiling of x.
 func (x *Real) Ceiling() *Real {
 	if x.IsInteger() {
 		return x.Copy()

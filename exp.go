@@ -6,9 +6,11 @@ package number
 
 import "fmt"
 
+// MaxExpIterations is the maximum number of iterations in the Taylor series
+// approximation of eˣ. If this limit is reached, Exp() will panic.
 const MaxExpIterations = 1000
 
-// Return the exponential of x (e^x).
+// Return the exponential of x (eˣ).
 func (x *Real) Exp() *Real {
 	x.validate()
 	x2 := x.Copy()

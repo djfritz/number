@@ -13,6 +13,7 @@ import (
 	"strings"
 )
 
+// Printing specific constants
 const (
 	asciiOffset           = 0x30 // offset to add to bytes to get their ASCII representation
 	sensibleSize          = 40   // sensible number of digits to print before engaging scientific notation for the %v verb
@@ -28,6 +29,11 @@ func (x *Real) String() string {
 	return fmt.Sprintf("%e", x)
 }
 
+// Format implements [fmt.Formatter]. It acccepts 'd', 'e', 'f', and 'v' verbs.
+// The 'd' verb will return an integer with trailing zeros. 'e' is the same as
+// String(), and returns the value in scientific notation. 'f' returns a
+// floating point value, and accepts precision modifiers. 'v' will choose an
+// appropriate form based on the magnitude of the number.
 func (x *Real) Format(s fmt.State, verb rune) {
 	printable := x.Copy()
 	p, precisionSet := s.Precision()
@@ -168,49 +174,47 @@ func (x *Real) Integer() *Real {
 	return z
 }
 
-func (x *Real) Uint64() (uint64, bool) {
-	if x.IsInf() || x.IsNaN() {
-		return 0, false
-	}
-
+// Return a uint64 representation of the number, if possible. If not possible,
+// err will be non-nil.
+func (x *Real) Uint64() (uint64, error) {
 	s := fmt.Sprintf("%d", x)
 	u, err := strconv.ParseUint(s, 10, 64)
 	if err != nil {
-		return 0, false
+		return 0, err
 	}
-	return u, true
+	return u, nil
 }
 
-func (x *Real) Int64() (int64, bool) {
-	if x.IsInf() || x.IsNaN() {
-		return 0, false
-	}
-
+// Return an int64 representation of the number, if possible. If not possible,
+// err will be non-nil.
+func (x *Real) Int64() (int64, error) {
 	s := fmt.Sprintf("%d", x)
 	i, err := strconv.ParseInt(s, 10, 64)
 	if err != nil {
-		return 0, false
+		return 0, err
 	}
-	return i, true
+	return i, nil
 }
 
-func (x *Real) Float64() (float64, bool) {
+// Return a float64 representation of the number, if possible. If not possible,
+// err will be non-nil.
+func (x *Real) Float64() (float64, error) {
 	if x.IsInf() {
 		sign := 1
 		if x.negative {
 			sign = -1
 		}
-		return math.Inf(sign), true
+		return math.Inf(sign), nil
 	} else if x.IsNaN() {
-		return math.NaN(), true
+		return math.NaN(), nil
 	}
 
 	s := fmt.Sprintf("%e", x)
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
-		return 0, false
+		return 0, err
 	}
-	return f, true
+	return f, nil
 }
 
 // ParseReal converts a string s to a Real with the given precision p.

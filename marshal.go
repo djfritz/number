@@ -9,6 +9,7 @@ import (
 	"encoding/gob"
 )
 
+// GobEncode implements the [encoding/gob.GobEncoder] interface.
 func (x *Real) GobEncode() ([]byte, error) {
 	w := bytes.Buffer{}
 	enc := gob.NewEncoder(&w)
@@ -54,6 +55,7 @@ func (x *Real) GobEncode() ([]byte, error) {
 
 }
 
+// GobDecode implements the [encoding/gob.GobDecoder] interface.
 func (x *Real) GobDecode(b []byte) error {
 	r := bytes.NewReader(b)
 	dec := gob.NewDecoder(r)

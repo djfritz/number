@@ -4,8 +4,7 @@
 
 package number
 
-// Return the quotient of x/y. Precision and rounding rules are the same as
-// Add().
+// Return the quotient of x/y.
 func (x *Real) Div(y *Real) *Real {
 	x.validate()
 	x2 := x.Copy()

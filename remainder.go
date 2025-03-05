@@ -4,6 +4,7 @@
 
 package number
 
+// Return the remainder of x/y.
 func (x *Real) Remainder(y *Real) *Real {
 	x.validate()
 	x2 := x.Copy()

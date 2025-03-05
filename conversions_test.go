@@ -140,9 +140,9 @@ func TestUint641(t *testing.T) {
 	x := NewInt64(1234)
 	x.exponent = 10
 
-	u, ok := x.Uint64()
-	if !ok || u != 12340000000 {
-		t.Fatal("invalid cast", u, ok)
+	u, err := x.Uint64()
+	if err != nil || u != 12340000000 {
+		t.Fatal("invalid cast", u, err)
 	}
 }
 
@@ -150,9 +150,9 @@ func TestUint642(t *testing.T) {
 	x := NewInt64(1234)
 	x.exponent = -10
 
-	u, ok := x.Uint64()
-	if !ok || u != 0 {
-		t.Fatal("invalid cast", u, ok)
+	u, err := x.Uint64()
+	if err != nil || u != 0 {
+		t.Fatal("invalid cast", u, err)
 	}
 }
 
@@ -160,9 +160,9 @@ func TestInt641(t *testing.T) {
 	x := NewInt64(-1234)
 	x.exponent = 10
 
-	u, ok := x.Int64()
-	if !ok || u != -12340000000 {
-		t.Fatal("invalid cast", u, ok)
+	u, err := x.Int64()
+	if err != nil || u != -12340000000 {
+		t.Fatal("invalid cast", u, err)
 	}
 }
 
@@ -170,9 +170,9 @@ func TestInt642(t *testing.T) {
 	x := NewInt64(-1234)
 	x.exponent = -10
 
-	u, ok := x.Int64()
-	if !ok || u != 0 {
-		t.Fatal("invalid cast", u, ok)
+	u, err := x.Int64()
+	if err != nil || u != 0 {
+		t.Fatal("invalid cast", u, err)
 	}
 }
 
@@ -180,9 +180,9 @@ func TestFloat641(t *testing.T) {
 	x := NewInt64(-1234)
 	x.exponent = 10
 
-	u, ok := x.Float64()
-	if !ok || u != -1.234e+10 {
-		t.Fatal("invalid cast", u, ok)
+	u, err := x.Float64()
+	if err != nil || u != -1.234e+10 {
+		t.Fatal("invalid cast", u, err)
 	}
 }
 
@@ -190,9 +190,9 @@ func TestFloat642(t *testing.T) {
 	x := NewInt64(-1234)
 	x.exponent = -10
 
-	u, ok := x.Float64()
-	if !ok || u != -1.234e-10 {
-		t.Fatal("invalid cast", u, ok)
+	u, err := x.Float64()
+	if err != nil || u != -1.234e-10 {
+		t.Fatal("invalid cast", u, err)
 	}
 }
 

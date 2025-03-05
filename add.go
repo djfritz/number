@@ -8,8 +8,7 @@ import (
 	"bytes"
 )
 
-// Return the sum of x and y. The result will have the precision of the larger
-// addend, and the rounding mode of x.
+// Return the sum of x and y.
 func (x *Real) Add(y *Real) *Real {
 	x.validate()
 	y.validate()
@@ -197,7 +196,7 @@ func (z *Real) add(x, y *Real) {
 	}
 }
 
-// Subtract the significands of x and y into the significand of r, ignoring the
+// Subtract the significands of x and y into the significand of z, ignoring the
 // sign.
 func (z *Real) sub(x, y *Real) {
 	// check for aliasing
@@ -295,8 +294,7 @@ func (z *Real) sub(x, y *Real) {
 	}
 }
 
-// Return the subtraction of y from x. Uses the same precision and rounding
-// rules as Add().
+// Return the subtraction of y from x.
 func (x *Real) Sub(y *Real) *Real {
 	x.validate()
 	y.validate()

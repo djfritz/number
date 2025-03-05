@@ -8,6 +8,7 @@ import (
 	"errors"
 )
 
+// Rounding modes.
 const (
 	ModeNearestEven = iota
 	ModeNearest
@@ -16,6 +17,7 @@ const (
 
 var ErrInvalidMode = errors.New("invalid mode")
 
+// Set the rounding mode.
 func (x *Real) SetMode(m int) error {
 	switch m {
 	case ModeNearestEven:
@@ -30,6 +32,7 @@ func (x *Real) SetMode(m int) error {
 	return nil
 }
 
+// Return the rounding mode.
 func (x *Real) Mode() int {
 	return x.mode
 }
