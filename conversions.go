@@ -287,6 +287,7 @@ func ParseReal(s string, p uint) (*Real, error) {
 		x.exponent += int(exp)
 	}
 
+	x.trim()
 	x.SetPrecision(p)
 	return x, nil
 }
