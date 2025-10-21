@@ -41,3 +41,33 @@ func TestArctan4(t *testing.T) {
 		t.Fatal("invalid arctan", z.String())
 	}
 }
+
+func TestAtan2_1(t *testing.T) {
+	y, _ := ParseReal("0", DefaultPrecision)
+	x, _ := ParseReal("1", DefaultPrecision)
+	z := Atan2(y, x)
+
+	if z.String() != "0" {
+		t.Fatal("invalid arctan", z.String())
+	}
+}
+
+func TestAtan2_2(t *testing.T) {
+	y, _ := ParseReal("0.179", DefaultPrecision)
+	x, _ := ParseReal("0.063", DefaultPrecision)
+	z := Atan2(y, x)
+
+	if z.String() != "1.23238064868431367733228638812685e0" {
+		t.Fatal("invalid arctan", z.String())
+	}
+}
+
+func TestAtan2_3(t *testing.T) {
+	y, _ := ParseReal("0.179", DefaultPrecision)
+	x, _ := ParseReal("-0.063", DefaultPrecision)
+	z := Atan2(y, x)
+
+	if z.String() != "1.909212004905479561130356995152653e0" {
+		t.Fatal("invalid arctan", z.String())
+	}
+}

@@ -89,3 +89,48 @@ func (x *Real) arctan() *Real {
 
 	return z
 }
+
+// Return the 2-argument inverse tangent of x, in radians.
+func Atan2(y, x *Real) *Real {
+	y.validate()
+	x.validate()
+	zero := new(Real)
+	z := initFrom2(y, x)
+
+	switch x.Compare(zero) {
+	case 1:
+		z = y.Div(x).Arctan()
+	case 0:
+		switch y.Compare(zero) {
+		case 1:
+			two := initFrom(z)
+			two.SetInt64(2)
+			z.significand = make([]byte, len(π))
+			copy(z.significand, π)
+			z.round()
+			z = z.div(two)
+		case 0:
+			// undefined
+			z.form = FormNaN
+		case -1:
+			two := initFrom(z)
+			two.SetInt64(2)
+			z.significand = make([]byte, len(π))
+			copy(z.significand, π)
+			z.round()
+			z = z.div(two)
+			z.negative = true
+		}
+	case -1:
+		z = y.Div(x).Arctan()
+		pi := initFrom(z)
+		pi.significand = make([]byte, len(π))
+		copy(pi.significand, π)
+		pi.round()
+		if y.Compare(zero) == -1 {
+			pi.negative = true
+		}
+		z = z.Add(pi)
+	}
+	return z
+}
