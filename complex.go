@@ -94,3 +94,9 @@ func (x *Complex) Div(y *Complex) *Complex {
 	z.i = z.i.Div(d)
 	return z
 }
+
+func (x *Complex) Polar() (*Real, *Real) {
+	ρ := x.Abs()
+	φ := Atan2(x.i, x.r)
+	return ρ, φ
+}

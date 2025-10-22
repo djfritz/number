@@ -110,3 +110,27 @@ func TestComplexDiv(t *testing.T) {
 		t.Fatal("invalid imaginary part", z.i)
 	}
 }
+
+func TestComplexPolar1(t *testing.T) {
+	x := NewComplex(NewInt64(1), NewInt64(1))
+	ρ, φ := x.Polar()
+
+	if ρ.String() != "1.414213562373095048801688724209698e0" {
+		t.Fatal("invalid polar radius", ρ.String())
+	}
+	if φ.String() != "7.853981633974483096156608458198757e-1" {
+		t.Fatal("invalid polar angle", φ.String())
+	}
+}
+
+func TestComplexPolar2(t *testing.T) {
+	x := NewComplex(NewInt64(-123), NewInt64(-2))
+	ρ, φ := x.Polar()
+
+	if ρ.String() != "1.230162590879758463158120036190364e2" {
+		t.Fatal("invalid polar radius", ρ.String())
+	}
+	if φ.String() != "-3.125333923784663650770045485291427e0" {
+		t.Fatal("invalid polar angle", φ.String())
+	}
+}
