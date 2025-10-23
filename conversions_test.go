@@ -275,3 +275,87 @@ func TestParseReal7(t *testing.T) {
 		t.Fatal("should have generated error")
 	}
 }
+
+func TestFormatterComplex(t *testing.T) {
+	x := NewComplex(NewInt64(1), NewInt64(2))
+
+	if fmt.Sprintf("%v", x) != "1+2i" {
+		t.Fatal("invalid format", fmt.Sprintf("%.100v", x))
+	}
+}
+
+func TestFormatterComplex2(t *testing.T) {
+	x := NewComplex(NewInt64(1), NewInt64(-2))
+
+	if fmt.Sprintf("%v", x) != "1-2i" {
+		t.Fatal("invalid format", fmt.Sprintf("%.100v", x))
+	}
+}
+
+func TestFormatterPolar(t *testing.T) {
+	c := NewComplex(new(Real), new(Real))
+	c.SetPolar(NewInt64(1), NewInt64(2))
+	x := &Polar{c}
+
+	if fmt.Sprintf("%v", x) != "1∠2" {
+		t.Fatal("invalid format", fmt.Sprintf("%.100v", x))
+	}
+}
+
+func TestFormatterPolar2(t *testing.T) {
+	c := NewComplex(new(Real), new(Real))
+	c.SetPolar(NewInt64(1), NewInt64(4))
+	x := &Polar{c}
+
+	if fmt.Sprintf("%.5f", x) != "1.0∠-2.2832" {
+		t.Fatal("invalid format", fmt.Sprintf("%.5f", x))
+	}
+}
+
+func TestNativeComplex(t *testing.T) {
+	x := NewComplex(NewInt64(1), NewInt64(-2))
+	y, err := x.Complex()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if y != 1-2i {
+		t.Fatal("invalid native complex", x)
+	}
+}
+
+func TestParseComplex(t *testing.T) {
+	s := "-1.234e50+2i"
+	x, err := ParseComplex(s, DefaultPrecision)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if x.String() != "-1.234e50+2e0i" {
+		t.Fatal("invalid parse", x.String())
+	}
+}
+
+func TestParseComplex2(t *testing.T) {
+	s := "2i"
+	x, err := ParseComplex(s, DefaultPrecision)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if x.String() != "0+2e0i" {
+		t.Fatal("invalid parse", x.String())
+	}
+}
+
+func TestParseComplex3(t *testing.T) {
+	s := "2"
+	x, err := ParseComplex(s, DefaultPrecision)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if x.String() != "2e0+0i" {
+		t.Fatal("invalid parse", x.String())
+	}
+}

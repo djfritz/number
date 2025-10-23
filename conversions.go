@@ -22,6 +22,9 @@ const (
 
 var (
 	ErrInvalidCharacter = errors.New("invalid character")
+	ErrNoData           = errors.New("expected more data")
+	ErrTrailingData     = errors.New("trailing data")
+	ErrMissingImaginary = errors.New("missing imaginary number")
 )
 
 // Return the string form of the real number in scientific notation.
@@ -224,6 +227,20 @@ func (x *Real) Float64() (float64, error) {
 // Input can be as a fixed precision number or in scientific notation, using a
 // lower case 'e' for the exponent.
 func ParseReal(s string, p uint) (*Real, error) {
+	r, remainder, err := parseReal(s, p)
+	if err != nil {
+		return nil, err
+	}
+
+	if remainder != "" {
+		return nil, ErrTrailingData
+	}
+
+	return r, nil
+}
+
+func parseReal(s string, p uint) (*Real, string, error) {
+	s = strings.TrimSpace(s)
 	s = strings.ToLower(s)
 
 	x := new(Real)
@@ -238,10 +255,10 @@ func ParseReal(s string, p uint) (*Real, error) {
 
 	if s == "inf" {
 		x.form = FormInf
-		return x, nil
+		return x, "", nil
 	} else if s == "nan" {
 		x.form = FormNaN
-		return x, nil
+		return x, "", nil
 	}
 
 	// significand
@@ -253,21 +270,21 @@ func ParseReal(s string, p uint) (*Real, error) {
 			x.exponent = len(x.significand) - 1
 		} else if s[0] >= '0' && s[0] <= '9' {
 			x.significand = append(x.significand, byte(s[0])-asciiOffset)
+			oneDigit = true
 		} else if s[0] == 'e' {
 			// exponent
 			if len(x.significand) == 0 {
-				return nil, ErrInvalidCharacter
+				return nil, s, fmt.Errorf("%w: e", ErrInvalidCharacter)
 			}
 			break
 		} else {
-			return nil, ErrInvalidCharacter
+			break
 		}
 		s = s[1:]
-		oneDigit = true
 	}
 
 	if !oneDigit {
-		return nil, ErrInvalidCharacter
+		return nil, s, ErrInvalidCharacter
 	}
 
 	if !radixSet {
@@ -275,19 +292,107 @@ func ParseReal(s string, p uint) (*Real, error) {
 	}
 
 	// optional exponent
-	if len(s) > 0 {
-		if s[0] != 'e' {
-			return nil, ErrInvalidCharacter
-		}
+	if len(s) > 0 && s[0] == 'e' {
 		s = s[1:]
-		exp, err := strconv.ParseInt(s, 10, 64)
+
+		if len(s) == 0 {
+			return nil, s, ErrNoData
+		}
+
+		var si string
+
+		// trim off leading +/-
+		if s[0] == '+' || s[0] == '-' {
+			si += string(s[0])
+			s = s[1:]
+		}
+
+		for _, v := range s {
+			if v >= '0' && v <= '9' {
+				si += string(v)
+				s = s[1:]
+			} else {
+				break
+			}
+		}
+
+		exp, err := strconv.ParseInt(si, 10, 64)
 		if err != nil {
-			return nil, err
+			return nil, s, err
 		}
 		x.exponent += int(exp)
 	}
 
 	x.trim()
 	x.SetPrecision(p)
-	return x, nil
+	return x, s, nil
+}
+
+func (x *Complex) Format(s fmt.State, verb rune) {
+	// real part
+	x.r.Format(s, verb)
+
+	// imaginary part
+	if !x.i.negative {
+		s.Write([]byte{'+'})
+	}
+	x.i.Format(s, verb)
+	s.Write([]byte{'i'})
+}
+
+func (x *Polar) Format(s fmt.State, verb rune) {
+	ρ, φ := x.Polar()
+
+	// radius
+	ρ.Format(s, verb)
+
+	s.Write([]byte("∠"))
+
+	// angle
+	φ.Format(s, verb)
+}
+
+func (x *Complex) String() string {
+	return fmt.Sprintf("%e", x)
+}
+
+func (x *Polar) String() string {
+	return fmt.Sprintf("%e", x)
+}
+
+func (x *Complex) Complex() (complex128, error) {
+	r, err := x.r.Float64()
+	if err != nil {
+		return 0 + 0i, err
+	}
+	i, err := x.i.Float64()
+	if err != nil {
+		return 0 + 0i, err
+	}
+	return complex(r, i), nil
+
+}
+
+func ParseComplex(s string, p uint) (*Complex, error) {
+	x, s, err := parseReal(s, p)
+	if err != nil {
+		return nil, err
+	}
+	if s == "" {
+		return NewComplex(x, initFrom(x)), nil
+	}
+	if s == "i" {
+		return NewComplex(initFrom(x), x), nil
+	}
+	y, s, err := parseReal(s, p)
+	if err != nil {
+		return nil, err
+	}
+	if s == "i" {
+		return NewComplex(x, y), nil
+	}
+	if s == "" {
+		return nil, ErrMissingImaginary
+	}
+	return nil, ErrTrailingData
 }

@@ -11,6 +11,9 @@ type Complex struct {
 	i *Real
 }
 
+// Polar is an alias to the Complex type, and is used to simplify printing with fmt.Formatter.
+type Polar struct{ *Complex }
+
 // Copy returns a deep copy of x.
 func (x *Complex) Copy() *Complex {
 	z := &Complex{
@@ -99,4 +102,12 @@ func (x *Complex) Polar() (*Real, *Real) {
 	ρ := x.Abs()
 	φ := Atan2(x.i, x.r)
 	return ρ, φ
+}
+
+func (x *Complex) SetPolar(ρ, φ *Real) {
+	if ρ.negative {
+		panic("negative radius")
+	}
+	x.r = ρ.Mul(φ.Cos())
+	x.i = ρ.Mul(φ.Sin())
 }
